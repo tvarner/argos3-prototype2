@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+<argos-configuration>
+
+  <!-- ************************* -->
+  <!-- * General configuration * -->
+  <!-- ************************* -->
+  <framework>
+    <experiment length="0" ticks_per_second="5" />
+  </framework>
+
+  <!-- *************** -->
+  <!-- * Controllers * -->
+  <!-- *************** -->
+  <controllers />
+
+  <!-- *********************** -->
+  <!-- * Arena configuration * -->
+  <!-- *********************** -->
+  <!-- Note: rotations are specified and performed in ZYX order (opposite of ARGoS1) -->
+  <arena size="2, 2, 1" center="0, 0, 0.5">
+
+    <box id="b0" size=".1,.1,.1" movable="true" mass="1">
+      <body position="0,0,1" orientation="0,60,0" />
+    </box>
+    <!--box id="b1" size=".1,.1,.1" movable="true" mass="1">
+      <body position="0.05,0.05,1.1" orientation="0,0,0" />
+    </box-->
+
+    <!--cylinder id="c0" radius="0.5" height=".1" movable="true" mass="1">
+      <body position="1,0,0" orientation="0,0,0" />
+    </cylinder-->
+
+  </arena>
+
+  <!-- ******************* -->
+  <!-- * Physics engines * -->
+  <!-- ******************* -->
+  <physics_engines>
+    <dynamics3d id="dyn3d" iterations="20">
+      <floor />
+    </dynamics3d>
+  </physics_engines>
+
+  <!-- ********* -->
+  <!-- * Media * -->
+  <!-- ********* -->
+  <media />
+
+  <!-- ****************** -->
+  <!-- * Visualization * -->
+  <!-- ****************** -->
+  <visualization>
+    <qt-opengl />
+  </visualization>
+
+</argos-configuration>
