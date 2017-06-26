@@ -1,15 +1,14 @@
-#include "dynamics3d_single_body_object_model.h"
+
+#include "dynamics3d_multi_body_object_model.h"
 #include <argos3/core/simulator/entity/composable_entity.h>
 
 namespace argos {
 
-   //TODO attempt to use btrigidbody on the stack
-
    /****************************************/
    /****************************************/
 
-   CDynamics3DSingleBodyObjectModel::CDynamics3DSingleBodyObjectModel(CDynamics3DEngine& c_engine,
-                                                                      CComposableEntity& c_entity) :
+   CDynamics3DMultiBodyObjectModel::CDynamics3DMultiBodyObjectModel(CDynamics3DEngine& c_engine,
+                                                                    ComposableEntity& c_entity) :
       CDynamics3DModel(c_engine, c_entity.GetComponent<CEmbodiedEntity>("body")),
       m_cEntity(c_entity),
       m_cBody(0,NULL,NULL) {}
@@ -17,14 +16,14 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   CDynamics3DSingleBodyObjectModel::~CDynamics3DSingleBodyObjectModel() {
+   CDynamics3DMultiBodyObjectModel::~CDynamics3DMultiBodyObjectModel() {
    }
 
    /****************************************/
    /****************************************/
 
-   void CDynamics3DSingleBodyObjectModel::MoveTo(const CVector3& c_position,
-                                                 const CQuaternion& c_orientation) {
+   void CDynamics3DMultiBodyObjectModel::MoveTo(const CVector3& c_position,
+                                                const CQuaternion& c_orientation) {
       /* Transform coordinate systems and move the body */
       m_cMotionState.m_graphicsWorldTrans =
          btTransform(btQuaternion(c_orientation.GetX(),
@@ -46,7 +45,7 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   void CDynamics3DSingleBodyObjectModel::Reset() {
+   void CDynamics3DMultiBodyObjectModel::Reset() {
       /* Reset body position */
       const CVector3& cPosition = GetEmbodiedEntity().GetOriginAnchor().Position;
       const CQuaternion& cOrientation = GetEmbodiedEntity().GetOriginAnchor().Orientation;
@@ -80,7 +79,7 @@ GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
    /****************************************/
    /****************************************/
 
-   void CDynamics3DSingleBodyObjectModel::CalculateBoundingBox() {
+   void CDynamics3DMultiBodyObjectModel::CalculateBoundingBox() {
       btVector3 cAabbMin;
       btVector3 cAabbMax;    
       /* Get the axis aligned bounding box for the current body */
@@ -93,7 +92,7 @@ GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
    /****************************************/
    /****************************************/
 
-   bool CDynamics3DSingleBodyObjectModel::IsCollidingWithSomething() const {
+   bool CDynamics3DMultiBodyObjectModel::IsCollidingWithSomething() const {
       /* get the collision dispatcher */
       const btCollisionDispatcher* pcCollisionDispatcher =
          GetEngine().GetCollisionDispatcher();
@@ -127,7 +126,7 @@ GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
    /****************************************/
    /****************************************/
 
-   void CDynamics3DSingleBodyObjectModel::SetBody() {
+   void CDynamics3DMultiBodyObjectModel::SetBody() {
       /* create a motion state */
       m_cMotionState = btDefaultMotionState(m_cPositionalOffset, m_cGeometricOffset);
       /* Set position */
@@ -155,7 +154,7 @@ GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
       GetEngine().GetPhysicsWorld()->addRigidBody(&m_cBody);
       /* Register the origin anchor update method */
       RegisterAnchorMethod(GetEmbodiedEntity().GetOriginAnchor(),
-                           &CDynamics3DSingleBodyObjectModel::UpdateOriginAnchor);
+                           &CDynamics3DMultiBodyObjectModel::UpdateOriginAnchor);
       /* Calculate the bounding box */
       CalculateBoundingBox();
    }
@@ -163,7 +162,7 @@ GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
    /****************************************/
    /****************************************/
 
-   void CDynamics3DSingleBodyObjectModel::UpdateOriginAnchor(SAnchor& s_anchor) {
+   void CDynamics3DMultiBodyObjectModel::UpdateOriginAnchor(SAnchor& s_anchor) {
       const btVector3& cPosition = (m_cMotionState.m_graphicsWorldTrans).getOrigin();
       const btQuaternion cOrientation = (m_cMotionState.m_graphicsWorldTrans).getRotation();         /* swap coordinate system and set position */
       s_anchor.Position.Set(cPosition.getX(), -cPosition.getZ(), cPosition.getY());
