@@ -1,14 +1,14 @@
 /**
- * @file <argos3/plugins/simulator/physics_engines/dynamics3d/dynamics3d_single_body_object_model.h>
+ * @file <argos3/plugins/simulator/physics_engines/dynamics3d/dynamics3d_multi_body_object_model.h>
  *
  * @author Michael Allwright - <allsey87@gmail.com>
  */
 
-#ifndef DYNAMICS3D_SINGLE_BODY_OBJECT_MODEL_H
-#define DYNAMICS3D_SINGLE_BODY_OBJECT_MODEL_H
+#ifndef DYNAMICS3D_MULTI_BODY_OBJECT_MODEL_H
+#define DYNAMICS3D_MULTI_BODY_OBJECT_MODEL_H
 
 namespace argos {
-   class CDynamics3DSingleBodyObjectModel;
+   class CDynamics3DMultiBodyObjectModel;
 }
 
 #include <argos3/plugins/simulator/physics_engines/dynamics3d/dynamics3d_model.h>
@@ -16,14 +16,14 @@ namespace argos {
 namespace argos {
 
    /**
-    * Base class for object models with a single body.
+    * Base class for object models with a multi body.
     * <p>
     * This class offers all the basic functionality to manage
-    * models composed of a single body. These models, while having
-    * only a single body, can have multiple associated shapes.
+    * models composed of a multi body. These models, while having
+    * only a multi body, can have multiple associated shapes.
     * </p>
     * <p>
-    * Single-body objects are often passive objects such as boxes and
+    * Multi-body objects are often passive objects such as boxes and
     * cylinders, and simple robots with no moving parts, such as the
     * e-puck.
     * </p>
@@ -40,10 +40,10 @@ namespace argos {
     * <p>
     * This class retains ownership for the body and shapes you created once
     * you call SetBody(). In other words, you don't need to free these objects
-    * because ~CDynamics3DSingleBodyObjectModel() does it for you.
+    * because ~CDynamics3DMultiBodyObjectModel() does it for you.
     * </p>
     */
-   class CDynamics3DSingleBodyObjectModel : public CDynamics3DModel {
+   class CDynamics3DMultiBodyObjectModel : public CDynamics3DModel {
 
    public:
 
@@ -53,14 +53,14 @@ namespace argos {
        * @param c_entity The composable entity associated to this model.
        * @throws CARGoSException if c_entity does not contain an embodied entity.
        */
-      CDynamics3DSingleBodyObjectModel(CDynamics3DEngine& c_engine,
-                                       CComposableEntity& c_entity);
+      CDynamics3DMultiBodyObjectModel(CDynamics3DEngine& c_engine,
+                                      CComposableEntity& c_entity);
 
       /**
        * Class destructor.
        * Disposes of the object body and its shapes.
        */
-      virtual ~CDynamics3DSingleBodyObjectModel();
+      virtual ~CDynamics3DMultiBodyObjectModel();
 
       /**
        * Returns the associated composable entity as a non-const reference.
@@ -76,22 +76,6 @@ namespace argos {
        */
       inline const CComposableEntity& GetComposableEntity() const {
          return m_cEntity;
-      }
-
-      /**
-       * Returns the body as non-const pointer.
-       * @returns The body as non-const pointer.
-       */
-      inline btRigidBody& GetBody() {
-         return m_cBody;
-      }
-
-      /**
-       * Returns the body as const pointer.
-       * @returns The body as const pointer.
-       */
-      inline const btRigidBody& GetBody() const {
-         return m_cBody;
       }
 
       virtual void Reset();
@@ -136,7 +120,7 @@ namespace argos {
    private:
 
       CComposableEntity&    m_cEntity;
-      std::vector<btRigidBody> m_vecBodies;
+      btMultiBody           m_cModel;
       btDefaultMotionState  m_cMotionState;
 
    protected:
