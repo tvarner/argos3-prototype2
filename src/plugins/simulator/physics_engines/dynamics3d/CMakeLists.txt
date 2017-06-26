@@ -32,7 +32,6 @@ set(ARGOS3_HEADERS_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET_BULLETCOL
    bullet/BulletCollision/BroadphaseCollision/btDbvt.h
    bullet/BulletCollision/BroadphaseCollision/btDbvtBroadphase.h
    bullet/BulletCollision/BroadphaseCollision/btDispatcher.h
-   bullet/BulletCollision/BroadphaseCollision/btMultiSapBroadphase.h
    bullet/BulletCollision/BroadphaseCollision/btOverlappingPairCache.h
    bullet/BulletCollision/BroadphaseCollision/btOverlappingPairCallback.h
    bullet/BulletCollision/BroadphaseCollision/btQuantizedBvh.h
@@ -192,8 +191,10 @@ set(ARGOS3_HEADERS_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET_BULLETDYN
 set(ARGOS3_HEADERS_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET_BULLETDYNAMICS_DYNAMICS
    bullet/BulletDynamics/Dynamics/btActionInterface.h
    bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.h
+   bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h
    bullet/BulletDynamics/Dynamics/btDynamicsWorld.h
    bullet/BulletDynamics/Dynamics/btSimpleDynamicsWorld.h
+   bullet/BulletDynamics/Dynamics/btSimulationIslandManagerMt.h
    bullet/BulletDynamics/Dynamics/btRigidBody.h)
 
 set(ARGOS3_HEADERS_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET_BULLETDYNAMICS_FEATHERSTONE
@@ -201,12 +202,14 @@ set(ARGOS3_HEADERS_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET_BULLETDYN
    bullet/BulletDynamics/Featherstone/btMultiBodyConstraint.h
    bullet/BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h
    bullet/BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h
+   bullet/BulletDynamics/Featherstone/btMultiBodyFixedConstraint.h
    bullet/BulletDynamics/Featherstone/btMultiBodyJointFeedback.h
    bullet/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.h
    bullet/BulletDynamics/Featherstone/btMultiBodyJointMotor.h
    bullet/BulletDynamics/Featherstone/btMultiBodyLink.h
    bullet/BulletDynamics/Featherstone/btMultiBodyLinkCollider.h
    bullet/BulletDynamics/Featherstone/btMultiBodyPoint2Point.h
+   bullet/BulletDynamics/Featherstone/btMultiBodySliderConstraint.h
    bullet/BulletDynamics/Featherstone/btMultiBodySolverConstraint.h)
 
 set(ARGOS3_HEADERS_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET_BULLETDYNAMICS_MLCPSOLVERS
@@ -251,6 +254,7 @@ set(ARGOS3_HEADERS_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET_LINEARMAT
    bullet/LinearMath/btSerializer.h
    bullet/LinearMath/btSpatialAlgebra.h
    bullet/LinearMath/btStackAlloc.h
+   bullet/LinearMath/btThreads.h
    bullet/LinearMath/btTransform.h
    bullet/LinearMath/btTransformUtil.h
    bullet/LinearMath/btVector3.h)
@@ -278,7 +282,6 @@ set(ARGOS3_SOURCES_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET
    bullet/BulletCollision/BroadphaseCollision/btDbvt.cpp
    bullet/BulletCollision/BroadphaseCollision/btDbvtBroadphase.cpp
    bullet/BulletCollision/BroadphaseCollision/btDispatcher.cpp
-   bullet/BulletCollision/BroadphaseCollision/btMultiSapBroadphase.cpp
    bullet/BulletCollision/BroadphaseCollision/btOverlappingPairCache.cpp
    bullet/BulletCollision/BroadphaseCollision/btQuantizedBvh.cpp
    bullet/BulletCollision/BroadphaseCollision/btSimpleBroadphase.cpp
@@ -386,15 +389,19 @@ set(ARGOS3_SOURCES_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET
    bullet/BulletDynamics/ConstraintSolver/btTypedConstraint.cpp
    bullet/BulletDynamics/ConstraintSolver/btUniversalConstraint.cpp
    bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorld.cpp
+	bullet/BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.cpp
    bullet/BulletDynamics/Dynamics/btRigidBody.cpp
    bullet/BulletDynamics/Dynamics/btSimpleDynamicsWorld.cpp
+	bullet/BulletDynamics/Dynamics/btSimulationIslandManagerMt.cpp
    bullet/BulletDynamics/Featherstone/btMultiBody.cpp
    bullet/BulletDynamics/Featherstone/btMultiBodyConstraint.cpp
    bullet/BulletDynamics/Featherstone/btMultiBodyConstraintSolver.cpp
    bullet/BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.cpp
+   bullet/BulletDynamics/Featherstone/btMultiBodyFixedConstraint.cpp
    bullet/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.cpp
    bullet/BulletDynamics/Featherstone/btMultiBodyJointMotor.cpp
    bullet/BulletDynamics/Featherstone/btMultiBodyPoint2Point.cpp
+   bullet/BulletDynamics/Featherstone/btMultiBodySliderConstraint.cpp
    bullet/BulletDynamics/MLCPSolvers/btDantzigLCP.cpp
    bullet/BulletDynamics/MLCPSolvers/btLemkeAlgorithm.cpp
    bullet/BulletDynamics/MLCPSolvers/btMLCPSolver.cpp
@@ -407,6 +414,7 @@ set(ARGOS3_SOURCES_PLUGINS_SIMULATOR_PHYSICS_ENGINES_DYNAMICS3D_BULLET
    bullet/LinearMath/btPolarDecomposition.cpp
    bullet/LinearMath/btQuickprof.cpp
    bullet/LinearMath/btSerializer.cpp
+   bullet/LinearMath/btThreads.cpp
    bullet/LinearMath/btVector3.cpp)
 
 #
