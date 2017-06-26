@@ -3,6 +3,8 @@
 
 namespace argos {
 
+   //TODO attempt to use btrigidbody on the stack
+
    /****************************************/
    /****************************************/
 
@@ -10,15 +12,12 @@ namespace argos {
                                                                       CComposableEntity& c_entity) :
       CDynamics3DModel(c_engine, c_entity.GetComponent<CEmbodiedEntity>("body")),
       m_cEntity(c_entity),
-      m_pcBody(NULL) {}
+      m_cBody(0,NULL,NULL) {}
 
    /****************************************/
    /****************************************/
 
    CDynamics3DSingleBodyObjectModel::~CDynamics3DSingleBodyObjectModel() {
-      /* Dispose of body */
-      delete m_pcBody;
-      delete m_pcMotionState;
    }
 
    /****************************************/
@@ -27,7 +26,7 @@ namespace argos {
    void CDynamics3DSingleBodyObjectModel::MoveTo(const CVector3& c_position,
                                                  const CQuaternion& c_orientation) {
       /* Transform coordinate systems and move the body */
-      m_pcMotionState->m_graphicsWorldTrans =
+      m_cMotionState.m_graphicsWorldTrans =
          btTransform(btQuaternion(c_orientation.GetX(),
                                   c_orientation.GetZ(), 
                                  -c_orientation.GetY(),
@@ -36,8 +35,8 @@ namespace argos {
                                c_position.GetZ(),
                                -c_position.GetY()));
       /* Update body */
-      m_pcBody->setMotionState(m_pcMotionState);
-      m_pcBody->activate();
+      m_cBody.setMotionState(&m_cMotionState);
+      m_cBody.activate();
       /* Update the bounding box */
       CalculateBoundingBox();
       /* Update ARGoS entity state */
@@ -51,7 +50,7 @@ namespace argos {
       /* Reset body position */
       const CVector3& cPosition = GetEmbodiedEntity().GetOriginAnchor().Position;
       const CQuaternion& cOrientation = GetEmbodiedEntity().GetOriginAnchor().Orientation;
-      m_pcMotionState->m_graphicsWorldTrans =
+      m_cMotionState.m_graphicsWorldTrans =
          btTransform(btQuaternion(cOrientation.GetX(),
                                   cOrientation.GetZ(), 
                                  -cOrientation.GetY(),
@@ -59,14 +58,21 @@ namespace argos {
                      btVector3(cPosition.GetX(),
                                cPosition.GetZ(),
                               -cPosition.GetY()));
-      /* Reset the motion state and activate body */
-      m_pcBody->setMotionState(m_pcMotionState);
-      /* Clear forces and torques */
-      m_pcBody->clearForces();
-      /* Reset the default surface friction */
-      m_pcBody->setFriction(0.5f);
+      /* setup the rigid body */
+GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
+      
+      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
+                                                                     &m_cMotionState,
+                                                                     m_pcShape,
+                                                                     m_cInertia));
+
+      GetEngine().GetPhysicsWorld()->addRigidBody(&m_cBody);
+      /* set the default surface friction */
+      m_cBody.setFriction(0.5f);
+      /* For reverse look up */
+      m_cBody.setUserPointer(this);
       /* Activate the body */
-      m_pcBody->activate();
+      m_cBody.activate();
       /* Update bounding box */
       CalculateBoundingBox();
    }
@@ -78,7 +84,7 @@ namespace argos {
       btVector3 cAabbMin;
       btVector3 cAabbMax;    
       /* Get the axis aligned bounding box for the current body */
-      m_pcShape->getAabb(m_pcBody->getWorldTransform(), cAabbMin, cAabbMax);
+      m_pcShape->getAabb(m_cBody.getWorldTransform(), cAabbMin, cAabbMax);
       /* Write back the bounding box swapping the coordinate systems and the Y component */
       GetBoundingBox().MinCorner.Set(cAabbMin.getX(), -cAabbMax.getZ(), cAabbMin.getY());
       GetBoundingBox().MaxCorner.Set(cAabbMax.getX(), -cAabbMin.getZ(), cAabbMax.getY());
@@ -123,12 +129,12 @@ namespace argos {
 
    void CDynamics3DSingleBodyObjectModel::SetBody() {
       /* create a motion state */
-      m_pcMotionState = new btDefaultMotionState(m_cPositionalOffset, m_cGeometricOffset);
+      m_cMotionState = btDefaultMotionState(m_cPositionalOffset, m_cGeometricOffset);
       /* Set position */
       const CVector3& cPosition = GetEmbodiedEntity().GetOriginAnchor().Position;
       const CQuaternion& cOrientation = GetEmbodiedEntity().GetOriginAnchor().Orientation;
 
-      m_pcMotionState->m_graphicsWorldTrans =
+      m_cMotionState.m_graphicsWorldTrans =
          btTransform(btQuaternion(cOrientation.GetX(),
                                   cOrientation.GetZ(), 
                                  -cOrientation.GetY(),
@@ -136,18 +142,17 @@ namespace argos {
                      btVector3(cPosition.GetX(),
                                cPosition.GetZ(),
                               -cPosition.GetY()));
-      /* construct the rigid body */
-      m_pcBody = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
-                                                                          m_pcMotionState,
-                                                                          m_pcShape,
-                                                                          m_cInertia));
-    
+      /* setup the rigid body */
+      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
+                                                                     &m_cMotionState,
+                                                                     m_pcShape,
+                                                                     m_cInertia));   
       /* set the default surface friction */
-      m_pcBody->setFriction(0.5f);
+      m_cBody.setFriction(0.5f);
       /* For reverse look up */
-      m_pcBody->setUserPointer(this);
+      m_cBody.setUserPointer(this);
       /* Add body to world */
-      GetEngine().GetPhysicsWorld()->addRigidBody(m_pcBody);
+      GetEngine().GetPhysicsWorld()->addRigidBody(&m_cBody);
       /* Register the origin anchor update method */
       RegisterAnchorMethod(GetEmbodiedEntity().GetOriginAnchor(),
                            &CDynamics3DSingleBodyObjectModel::UpdateOriginAnchor);
@@ -159,15 +164,15 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DSingleBodyObjectModel::UpdateOriginAnchor(SAnchor& s_anchor) {
-      const btVector3& cPosition = (m_pcMotionState->m_graphicsWorldTrans).getOrigin();
-      const btQuaternion cOrientation = (m_pcMotionState->m_graphicsWorldTrans).getRotation();     
-      /* swap coordinate system and set position */
+      const btVector3& cPosition = (m_cMotionState.m_graphicsWorldTrans).getOrigin();
+      const btQuaternion cOrientation = (m_cMotionState.m_graphicsWorldTrans).getRotation();         /* swap coordinate system and set position */
       s_anchor.Position.Set(cPosition.getX(), -cPosition.getZ(), cPosition.getY());
       /* swap coordinate system and set orientation */
       s_anchor.Orientation.Set(cOrientation.getW(),
                                cOrientation.getX(),
                               -cOrientation.getZ(),
                                cOrientation.getY());
+      LOG << s_anchor.Position << std::endl;
    }
 
    /****************************************/

@@ -1,129 +1,123 @@
-#include "dynamics3d_multi_body_object_model.h"
+#include "dynamics3d_single_body_object_model.h"
 #include <argos3/core/simulator/entity/composable_entity.h>
 
 namespace argos {
 
+   //TODO attempt to use btrigidbody on the stack
+
    /****************************************/
    /****************************************/
 
-   CDynamics3DMultiBodyObjectModel::CDynamics3DMultiBodyObjectModel(CDynamics3DEngine& c_engine,
-                                                                    CComposableEntity& c_entity) :
+   CDynamics3DSingleBodyObjectModel::CDynamics3DSingleBodyObjectModel(CDynamics3DEngine& c_engine,
+                                                                      CComposableEntity& c_entity) :
       CDynamics3DModel(c_engine, c_entity.GetComponent<CEmbodiedEntity>("body")),
-      m_cEntity(c_entity) {}
+      m_cEntity(c_entity),
+      m_cBody(0,NULL,NULL) {}
 
    /****************************************/
    /****************************************/
 
-   CDynamics3DMultiBodyObjectModel::~CDynamics3DMultiBodyObjectModel() {
-      /* Dispose of shapes and bodies */
-      while(!m_vecBodies.empty()) {
-         /* Get pointer to body */
-         cpBody* ptBody = m_vecBodies.back().Body;
-         /* Remove all of its shapes */
-         cpShape* ptCurShape = ptBody->shapeList;
-         cpShape* ptNextShape;
-         while(ptCurShape) {
-            ptNextShape = ptCurShape->next;
-            cpSpaceRemoveShape(GetDynamics3dEngine().GetPhysicsSpace(), ptCurShape);
-            cpShapeFree(ptCurShape);
-            ptCurShape = ptNextShape;
-         }
-         /* Dispose of body */
-         cpSpaceRemoveBody(GetDynamics3dEngine().GetPhysicsSpace(), ptBody);
-         cpBodyFree(ptBody);
-         /* Dispose of struct */
-         m_vecBodies.pop_back();
-      }
+   CDynamics3DSingleBodyObjectModel::~CDynamics3DSingleBodyObjectModel() {
    }
 
    /****************************************/
    /****************************************/
 
-   void CDynamics3DMultiBodyObjectModel::MoveTo(const CVector3& c_position,
-                                                const CQuaternion& c_orientation) {
-      /* Set target position and orientation */
-      cpVect tBodyPos = cpv(c_position.GetX(), c_position.GetY());
-      CRadians cXAngle, cYAngle, cZAngle;
-      c_orientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
-      cpFloat tBodyOrient = cZAngle.GetValue();
-      /* For each body: */
-      for(size_t i = 0; i < m_vecBodies.size(); ++i) {
-         /* Set body orientation at anchor */
-         cpBodySetAngle(m_vecBodies[i].Body,
-                        tBodyOrient + m_vecBodies[i].OffsetOrient);
-         /* Set body position at anchor */
-         cpBodySetPos(m_vecBodies[i].Body,
-                      cpvadd(tBodyPos,
-                             cpvrotate(m_vecBodies[i].OffsetPos,
-                                       m_vecBodies[i].Body->rot)));
-         
-         /* Update shape index */
-         cpSpaceReindexShapesForBody(GetDynamics3dEngine().GetPhysicsSpace(),
-                                     m_vecBodies[i].Body);
-      }
+   void CDynamics3DSingleBodyObjectModel::MoveTo(const CVector3& c_position,
+                                                 const CQuaternion& c_orientation) {
+      /* Transform coordinate systems and move the body */
+      m_cMotionState.m_graphicsWorldTrans =
+         btTransform(btQuaternion(c_orientation.GetX(),
+                                  c_orientation.GetZ(), 
+                                 -c_orientation.GetY(),
+                                  c_orientation.GetW()),
+                     btVector3(c_position.GetX(),
+                               c_position.GetZ(),
+                               -c_position.GetY()));
+      /* Update body */
+      m_cBody.setMotionState(&m_cMotionState);
+      m_cBody.activate();
+      /* Update the bounding box */
+      CalculateBoundingBox();
       /* Update ARGoS entity state */
-      UpdateEntityStatus();
+      CDynamics3DModel::UpdateEntityStatus();
    }
 
    /****************************************/
    /****************************************/
 
-   void CDynamics3DMultiBodyObjectModel::Reset() {
+   void CDynamics3DSingleBodyObjectModel::Reset() {
       /* Reset body position */
-      MoveTo(GetEmbodiedEntity().GetOriginAnchor().Position,
-             GetEmbodiedEntity().GetOriginAnchor().Orientation);
-      /* For each body: */
-      for(size_t i = 0; i < m_vecBodies.size(); ++i) {
-         /* Zero the speeds */
-         m_vecBodies[i].Body->v = cpvzero;
-         m_vecBodies[i].Body->w = 0.0f;
-         /* Zero forces and torques */
-         cpBodyResetForces(m_vecBodies[i].Body);
-      }
+      const CVector3& cPosition = GetEmbodiedEntity().GetOriginAnchor().Position;
+      const CQuaternion& cOrientation = GetEmbodiedEntity().GetOriginAnchor().Orientation;
+      m_cMotionState.m_graphicsWorldTrans =
+         btTransform(btQuaternion(cOrientation.GetX(),
+                                  cOrientation.GetZ(), 
+                                 -cOrientation.GetY(),
+                                  cOrientation.GetW()),
+                     btVector3(cPosition.GetX(),
+                               cPosition.GetZ(),
+                              -cPosition.GetY()));
+      /* setup the rigid body */
+GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
+      
+      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
+                                                                     &m_cMotionState,
+                                                                     m_pcShape,
+                                                                     m_cInertia));
+
+      GetEngine().GetPhysicsWorld()->addRigidBody(&m_cBody);
+      /* set the default surface friction */
+      m_cBody.setFriction(0.5f);
+      /* For reverse look up */
+      m_cBody.setUserPointer(this);
+      /* Activate the body */
+      m_cBody.activate();
+      /* Update bounding box */
+      CalculateBoundingBox();
    }
 
    /****************************************/
    /****************************************/
 
-   void CDynamics3DMultiBodyObjectModel::CalculateBoundingBox() {
-      if(m_vecBodies.empty()) return;
-      cpBB tBoundingBox;
-      Real fMaxHeight;
-      for(size_t i = 0; i < m_vecBodies.size(); ++i) {
-         tBoundingBox = cpShapeGetBB(m_vecBodies[i].Body->shapeList);
-         for(cpShape* pt_shape = m_vecBodies[i].Body->shapeList->next;
-             pt_shape != NULL;
-             pt_shape = pt_shape->next) {
-            cpBB* ptBB = &pt_shape->bb;
-            if(ptBB->l < tBoundingBox.l) tBoundingBox.l = ptBB->l;
-            if(ptBB->b < tBoundingBox.b) tBoundingBox.b = ptBB->b;
-            if(ptBB->r > tBoundingBox.r) tBoundingBox.r = ptBB->r;
-            if(ptBB->t > tBoundingBox.t) tBoundingBox.t = ptBB->t;
+   void CDynamics3DSingleBodyObjectModel::CalculateBoundingBox() {
+      btVector3 cAabbMin;
+      btVector3 cAabbMax;    
+      /* Get the axis aligned bounding box for the current body */
+      m_pcShape->getAabb(m_cBody.getWorldTransform(), cAabbMin, cAabbMax);
+      /* Write back the bounding box swapping the coordinate systems and the Y component */
+      GetBoundingBox().MinCorner.Set(cAabbMin.getX(), -cAabbMax.getZ(), cAabbMin.getY());
+      GetBoundingBox().MaxCorner.Set(cAabbMax.getX(), -cAabbMin.getZ(), cAabbMax.getY());
+   }
+  
+   /****************************************/
+   /****************************************/
+
+   bool CDynamics3DSingleBodyObjectModel::IsCollidingWithSomething() const {
+      /* get the collision dispatcher */
+      const btCollisionDispatcher* pcCollisionDispatcher =
+         GetEngine().GetCollisionDispatcher();
+      /* for each manifold from the collision dispatcher */
+      for(UInt32 i = 0; i < UInt32(pcCollisionDispatcher->getNumManifolds()); i++) {
+         const btPersistentManifold* pcContactManifold =
+            pcCollisionDispatcher->getManifoldByIndexInternal(i);
+         const CDynamics3DModel* pcModelA =
+            static_cast<const CDynamics3DModel*>(pcContactManifold->getBody0()->getUserPointer());
+         const CDynamics3DModel* pcModelB =
+            static_cast<const CDynamics3DModel*>(pcContactManifold->getBody1()->getUserPointer());
+         /* ignore collisions of bodies that don't belong to a model (e.g. the ground) */
+         if((pcModelA == NULL) || (pcModelB == NULL)) {
+            continue;
          }
-         fMaxHeight = Max(fMaxHeight, m_vecBodies[i].Height);
-      }      
-      GetBoundingBox().MinCorner.SetX(tBoundingBox.l);
-      GetBoundingBox().MinCorner.SetY(tBoundingBox.b);
-      GetBoundingBox().MinCorner.SetZ(GetDynamics3dEngine().GetElevation());
-      GetBoundingBox().MaxCorner.SetX(tBoundingBox.r);
-      GetBoundingBox().MaxCorner.SetY(tBoundingBox.t);
-      GetBoundingBox().MaxCorner.SetZ(GetDynamics3dEngine().GetElevation() + fMaxHeight);
-   }
-
-   /****************************************/
-   /****************************************/
-
-   bool CDynamics3DMultiBodyObjectModel::IsCollidingWithSomething() const {
-      if(m_vecBodies.empty()) return false;
-      for(size_t i = 0; i < m_vecBodies.size(); ++i) {
-         for(cpShape* pt_shape = m_vecBodies[i].Body->shapeList;
-             pt_shape != NULL;
-             pt_shape = pt_shape->next) {
-            if(cpSpaceShapeQuery(
-                  const_cast<CDynamics3DMultiBodyObjectModel*>(this)->
-                  GetDynamics3dEngine().GetPhysicsSpace(),
-                  pt_shape, NULL, NULL) > 0) {
-               return true;
+         /* check that the collision involves this model */
+         if((pcModelA == this) || (pcModelB == this)) {
+            /* One of the two bodies involved in the contact manifold belongs to this model,
+               check for contact points with negative distance to indicate a collision */
+            for(UInt32 j = 0; j < UInt32(pcContactManifold->getNumContacts()); j++) {  
+               const btManifoldPoint& cManifoldPoint = pcContactManifold->getContactPoint(j);
+               if (cManifoldPoint.getDistance() < 0.0f) {
+                  return true;
+               }
             }
          }
       }
@@ -133,17 +127,35 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   void CDynamics3DMultiBodyObjectModel::AddBody(cpBody* pt_body,
-                                                 const cpVect& t_offset_pos,
-                                                 cpFloat t_offset_orient,
-                                                 Real f_height) {
-      /* Set the body and its data field for ray queries */
-      pt_body->data = this;
-      /* Add body to list */
-      m_vecBodies.push_back(SBody(pt_body,
-                                  t_offset_pos,
-                                  t_offset_orient,
-                                  f_height));
+   void CDynamics3DSingleBodyObjectModel::SetBody() {
+      /* create a motion state */
+      m_cMotionState = btDefaultMotionState(m_cPositionalOffset, m_cGeometricOffset);
+      /* Set position */
+      const CVector3& cPosition = GetEmbodiedEntity().GetOriginAnchor().Position;
+      const CQuaternion& cOrientation = GetEmbodiedEntity().GetOriginAnchor().Orientation;
+
+      m_cMotionState.m_graphicsWorldTrans =
+         btTransform(btQuaternion(cOrientation.GetX(),
+                                  cOrientation.GetZ(), 
+                                 -cOrientation.GetY(),
+                                  cOrientation.GetW()),
+                     btVector3(cPosition.GetX(),
+                               cPosition.GetZ(),
+                              -cPosition.GetY()));
+      /* setup the rigid body */
+      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
+                                                                     &m_cMotionState,
+                                                                     m_pcShape,
+                                                                     m_cInertia));   
+      /* set the default surface friction */
+      m_cBody.setFriction(0.5f);
+      /* For reverse look up */
+      m_cBody.setUserPointer(this);
+      /* Add body to world */
+      GetEngine().GetPhysicsWorld()->addRigidBody(&m_cBody);
+      /* Register the origin anchor update method */
+      RegisterAnchorMethod(GetEmbodiedEntity().GetOriginAnchor(),
+                           &CDynamics3DSingleBodyObjectModel::UpdateOriginAnchor);
       /* Calculate the bounding box */
       CalculateBoundingBox();
    }
@@ -151,14 +163,16 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   CDynamics3DMultiBodyObjectModel::SBody::SBody(cpBody* pt_body,
-                                                 const cpVect& t_offset_pos,
-                                                 cpFloat t_offset_orient,
-                                                 Real f_height) :
-      Body(pt_body),
-      OffsetPos(t_offset_pos),
-      OffsetOrient(t_offset_orient),
-      Height(f_height) {}
+   void CDynamics3DSingleBodyObjectModel::UpdateOriginAnchor(SAnchor& s_anchor) {
+      const btVector3& cPosition = (m_cMotionState.m_graphicsWorldTrans).getOrigin();
+      const btQuaternion cOrientation = (m_cMotionState.m_graphicsWorldTrans).getRotation();         /* swap coordinate system and set position */
+      s_anchor.Position.Set(cPosition.getX(), -cPosition.getZ(), cPosition.getY());
+      /* swap coordinate system and set orientation */
+      s_anchor.Orientation.Set(cOrientation.getW(),
+                               cOrientation.getX(),
+                              -cOrientation.getZ(),
+                               cOrientation.getY());
+   }
 
    /****************************************/
    /****************************************/

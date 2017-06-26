@@ -82,16 +82,16 @@ namespace argos {
        * Returns the body as non-const pointer.
        * @returns The body as non-const pointer.
        */
-      inline btRigidBody* GetBody() {
-         return m_pcBody;
+      inline btRigidBody& GetBody() {
+         return m_cBody;
       }
 
       /**
        * Returns the body as const pointer.
        * @returns The body as const pointer.
        */
-      inline const btRigidBody* GetBody() const {
-         return m_pcBody;
+      inline const btRigidBody& GetBody() const {
+         return m_cBody;
       }
 
       virtual void Reset();
@@ -104,7 +104,7 @@ namespace argos {
       virtual void UpdateFromEntityStatus()  = 0;
 
       virtual bool IsCollidingWithSomething() const;
-
+      
       /**
        * Sets the body and registers the default origin anchor method.
        * <p>
@@ -136,8 +136,8 @@ namespace argos {
    private:
 
       CComposableEntity&    m_cEntity;
-      btRigidBody*          m_pcBody;
-      btDefaultMotionState* m_pcMotionState;
+      btRigidBody           m_cBody;
+      btDefaultMotionState  m_cMotionState;
 
    protected:
       btCollisionShape*     m_pcShape;

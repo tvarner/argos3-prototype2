@@ -124,6 +124,8 @@ namespace argos {
       /* reset the solvers and dispatchers */
       m_pcBroadphaseInterface->resetPool(m_pcCollisionDispatcher);
       // TODO this seems wrong
+      m_pcSolver->reset();
+
       m_pcSolver->setRandSeed(m_pcRNG->Uniform(m_cRandomSeedRange));
       /* reset plugins */
       /*
