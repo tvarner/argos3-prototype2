@@ -10,13 +10,13 @@
 namespace argos {
    class CControllableEntity;
    class CEmbodiedEntity;
-   class CJointEquippedEntity;
+//   class CJointEquippedEntity;
    class CPrototypeEntity;
 }
 
 #include <argos3/core/simulator/entity/composable_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/body_equipped_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/joint_equipped_entity.h>
+#include <argos3/plugins/robots/prototype/simulator/entities/link_equipped_entity.h>
+//#include <argos3/plugins/robots/prototype/simulator/entities/joint_equipped_entity.h>
 
 namespace argos {
 
@@ -40,13 +40,13 @@ namespace argos {
          return *m_pcEmbodiedEntity;
       }
 
-      inline CBodyEquippedEntity& GetBodyEquippedEntity() {
-         return *m_pcBodyEquippedEntity;
+      inline CLinkEquippedEntity& GetLinkEquippedEntity() {
+         return *m_pcLinkEquippedEntity;
       }
 
-      inline CJointEquippedEntity& GetJointEquippedEntity() {
-         return *m_pcJointEquippedEntity;
-      }
+//      inline CJointEquippedEntity& GetJointEquippedEntity() {
+//         return *m_pcJointEquippedEntity;
+//      }
 
       inline bool HasControllableEntity() {
          return m_pcControllableEntity != NULL;
@@ -62,10 +62,10 @@ namespace argos {
 
    private:
 
-      CControllableEntity*            m_pcControllableEntity;
+      CControllableEntity* m_pcControllableEntity;
       CEmbodiedEntity* m_pcEmbodiedEntity;
-      CBodyEquippedEntity* m_pcBodyEquippedEntity;
-      CJointEquippedEntity* m_pcJointEquippedEntity;
+      CLinkEquippedEntity* m_pcLinkEquippedEntity;
+//      CJointEquippedEntity* m_pcJointEquippedEntity;
    };
 
 }

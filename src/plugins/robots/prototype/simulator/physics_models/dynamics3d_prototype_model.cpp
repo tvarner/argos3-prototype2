@@ -10,7 +10,7 @@
 #include <argos3/plugins/simulator/physics_engines/dynamics3d/dynamics3d_engine.h>
 
 #include <argos3/plugins/robots/prototype/simulator/entities/joint_equipped_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/body_equipped_entity.h>
+#include <argos3/plugins/robots/prototype/simulator/entities/link_equipped_entity.h>
 #include <argos3/plugins/robots/prototype/simulator/entities/frame_equipped_entity.h>
 
 #include <argos3/plugins/robots/prototype/utility/geometry3.h>
@@ -26,17 +26,18 @@ namespace argos {
                                                 CPrototypeEntity& c_entity) :
       CDynamics3DModel(c_engine, c_entity.GetEmbodiedEntity(), c_entity.GetId()),
       m_cPrototypeEntity(c_entity),
-      m_cBodyEquippedEntity(c_entity.GetBodyEquippedEntity()),
+      m_cLinkEquippedEntity(c_entity.GetLinkEquippedEntity()),
       m_cJointEquippedEntity(c_entity.GetJointEquippedEntity()) {
       
-      for(CBodyEntity::TList::iterator itBody = m_cBodyEquippedEntity.GetAllBodies().begin();
-          itBody != m_cBodyEquippedEntity.GetAllBodies().end();
-          ++itBody) {
+      for(CLinkEntity::TList::iterator itLink = m_cLinkEquippedEntity.GetAllLinks().begin();
+          itLink != m_cLinkEquippedEntity.GetAllLinks().end();
+          ++itLink) {
 
          btCollisionShape* pcShape = NULL;
-         btVector3 cExtents((*itBody)->GetGeometry().GetExtents().GetX(),
-                            (*itBody)->GetGeometry().GetExtents().GetZ(),
-                            (*itBody)->GetGeometry().GetExtents().GetY());
+
+         btVector3 cExtents((*itLink)->GetExtents().GetX() * 0.5f,
+                            (*itLink)->GetExtents().GetZ() * 0.5f,
+                            (*itLink)->GetExtents().GetY() * 0.5f);
          /* check the tag to determine which shape manager to use */
          switch((*itBody)->GetGeometry().GetTag()) {
          case CGeometry3::BOX:

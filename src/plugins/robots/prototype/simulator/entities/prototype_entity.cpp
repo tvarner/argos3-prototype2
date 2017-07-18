@@ -6,21 +6,21 @@
 
 #include "prototype_entity.h"
 
-#include <argos3/plugins/robots/prototype/simulator/entities/body_equipped_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/joint_equipped_entity.h>
+#include <argos3/plugins/simulator/entities/proximity_sensor_equipped_entity.h>
+#include <argos3/plugins/simulator/entities/led_equipped_entity.h>
 
-#include <argos3/plugins/robots/prototype/simulator/entities/prototype_proximity_sensor_equipped_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/prototype_led_equipped_entity.h>
+#include <argos3/plugins/robots/prototype/simulator/entities/link_equipped_entity.h>
+/*
+#include <argos3/plugins/robots/prototype/simulator/entities/joint_equipped_entity.h>
 #include <argos3/plugins/robots/prototype/simulator/entities/camera_equipped_entity.h>
 #include <argos3/plugins/robots/prototype/simulator/entities/electromagnet_equipped_entity.h>
 #include <argos3/plugins/robots/prototype/simulator/entities/tag_equipped_entity.h>
 #include <argos3/plugins/robots/prototype/simulator/entities/radio_equipped_entity.h>
-
+*/
 #include <argos3/plugins/robots/prototype/simulator/media/tag_medium.h>
 #include <argos3/plugins/simulator/media/led_medium.h>
 
 #include <argos3/core/simulator/space/space.h>
-//#include <argos3/core/simulator/entity/controllable_entity.h>
 #include <argos3/core/simulator/entity/embodied_entity.h>
 #include <argos3/core/simulator/simulator.h>
 
@@ -33,8 +33,8 @@ namespace argos {
       CComposableEntity(NULL),
       m_pcControllableEntity(NULL),
       m_pcEmbodiedEntity(NULL),
-      m_pcBodyEquippedEntity(NULL),
-      m_pcJointEquippedEntity(NULL) {}
+      m_pcLinkEquippedEntity(NULL) {}
+//    m_pcJointEquippedEntity(NULL)
 
    /****************************************/
    /****************************************/
@@ -45,7 +45,7 @@ namespace argos {
           * Init parent
           */
          CComposableEntity::Init(t_tree);
-         
+
          /*
           * Create and init components
           */
@@ -54,33 +54,33 @@ namespace argos {
          AddComponent(*m_pcEmbodiedEntity);
          m_pcEmbodiedEntity->Init(GetNode(t_tree, "body"));
 
-         m_pcBodyEquippedEntity = new CBodyEquippedEntity(this);
-         AddComponent(*m_pcBodyEquippedEntity);
-         if(NodeExists(t_tree, "bodies")) {
-            m_pcBodyEquippedEntity->Init(GetNode(t_tree, "bodies"));
+         m_pcLinkEquippedEntity = new CLinkEquippedEntity(this);
+         AddComponent(*m_pcLinkEquippedEntity);
+         if(NodeExists(t_tree, "links")) {
+            m_pcLinkEquippedEntity->Init(GetNode(t_tree, "links"));
          }
-
+/*
          m_pcJointEquippedEntity = new CJointEquippedEntity(this);
          AddComponent(*m_pcJointEquippedEntity);
          if(NodeExists(t_tree, "joints")) {
             m_pcJointEquippedEntity->Init(GetNode(t_tree, "joints"));
          }
-
+*/
          if(NodeExists(t_tree, "devices")) {
             TConfigurationNodeIterator itDevice;
             for(itDevice = itDevice.begin(&GetNode(t_tree, "devices"));
                 itDevice != itDevice.end();
                 ++itDevice) {
 
-               if(itDevice->Value() == "proximity_sensors") {
-                  CPrototypeProximitySensorEquippedEntity* m_pcEquippedEntity = 
-                     new CPrototypeProximitySensorEquippedEntity(this);
+               if(itDevice->Value() == "rangefinders") {
+                  CProximitySensorEquippedEntity* m_pcEquippedEntity =
+                     new CProximitySensorEquippedEntity(this);
                   m_pcEquippedEntity->Init(*itDevice);
                   AddComponent(*m_pcEquippedEntity);
                }
                else if(itDevice->Value() == "leds" ) {
-                  CPrototypeLEDEquippedEntity* m_pcEquippedEntity =
-                     new CPrototypeLEDEquippedEntity(this);
+                  CLEDEquippedEntity* m_pcEquippedEntity =
+                     new CLEDEquippedEntity(this);
                   m_pcEquippedEntity->Init(*itDevice);
                   /* Add the LEDs to the specified medium */
                   std::string strMedium;
@@ -88,34 +88,35 @@ namespace argos {
                   m_pcEquippedEntity->AddToMedium(CSimulator::GetInstance().GetMedium<CLEDMedium>(strMedium));
                   AddComponent(*m_pcEquippedEntity);
                }
+/*
                else if(itDevice->Value() == "cameras" ) {
-                  CCameraEquippedEntity* m_pcEquippedEntity = 
+                  CCameraEquippedEntity* m_pcEquippedEntity =
                      new CCameraEquippedEntity(this);
                   m_pcEquippedEntity->Init(*itDevice);
-                  AddComponent(*m_pcEquippedEntity);         
+                  AddComponent(*m_pcEquippedEntity);
                }
                else if(itDevice->Value() == "electromagnets" ) {
-                  CElectromagnetEquippedEntity* m_pcEquippedEntity = 
+                  CElectromagnetEquippedEntity* m_pcEquippedEntity =
                      new CElectromagnetEquippedEntity(this);
                   m_pcEquippedEntity->Init(*itDevice);
-                  AddComponent(*m_pcEquippedEntity);         
+                  AddComponent(*m_pcEquippedEntity);
                }
                else if(itDevice->Value() == "tags" ) {
-                  CTagEquippedEntity* m_pcEquippedEntity = 
+                  CTagEquippedEntity* m_pcEquippedEntity =
                      new CTagEquippedEntity(this);
                   m_pcEquippedEntity->Init(*itDevice);
-                  /* Add the barcodes to the specified medium */
                   std::string strMedium;
                   GetNodeAttribute(*itDevice, "medium", strMedium);
                   m_pcEquippedEntity->AddToMedium(CSimulator::GetInstance().GetMedium<CTagMedium>(strMedium));
-                  AddComponent(*m_pcEquippedEntity);         
+                  AddComponent(*m_pcEquippedEntity);
                }
                else if(itDevice->Value() == "radios" ) {
-                  CRadioEquippedEntity* m_pcEquippedEntity = 
+                  CRadioEquippedEntity* m_pcEquippedEntity =
                      new CRadioEquippedEntity(this);
                   m_pcEquippedEntity->Init(*itDevice);
-                  AddComponent(*m_pcEquippedEntity);         
+                  AddComponent(*m_pcEquippedEntity);
                }
+*/
                else {
 THROW_ARGOSEXCEPTION("Attempt to add unimplemented device type \"" << itDevice->Value() << "\".");
                }

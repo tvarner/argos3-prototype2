@@ -6,9 +6,7 @@
 
 #include "link_entity.h"
 
-#include <argos3/plugins/robots/prototype/utility/box_geometry3.h>
-#include <argos3/plugins/robots/prototype/utility/cylinder_geometry3.h>
-#include <argos3/plugins/robots/prototype/utility/sphere_geometry3.h>
+#include <argos3/core/simulator/entity/composable_entity.h>
 
 namespace argos {
 
@@ -16,58 +14,46 @@ namespace argos {
    /****************************************/
 
    CLinkEntity::CLinkEntity(CComposableEntity* pc_parent) :
-      CComposableEntity(pc_parent),
-      m_pcPositionalEntity(NULL),
-      m_pcOffsetPositionalEntity(NULL),
-      m_pcGeometry(NULL),
+      CPositionalEntity(pc_parent),
       m_fMass(0.0f) {}
 
    /****************************************/
    /****************************************/
 
-   //@todo Is this method to be provided? remove/implement
    void CLinkEntity::Init(TConfigurationNode& t_tree) {
       try {
          /* Init parent */
-         CComposableEntity::Init(t_tree);
-
-         /* just use the default initialisation method for the positional entity
-          * as the position will be driven directly from a physics engine */
-         m_pcPositionalEntity = new CPositionalEntity(this);
-         AddComponent(*m_pcPositionalEntity);
-         if(NodeExists(t_tree, "coordinates")) {
-            m_pcPositionalEntity->Init(GetNode(t_tree, "coordinates"));
-         }
-
-         /* Parse link attributes */ 
+         CPositionalEntity::Init(t_tree);
+         /* Get a link to the emboddied entity */
+         CEmbodiedEntity& cBody = GetParent().GetComponent<CEmbodiedEntity>("body");
+         /* Parse link geometry and dimensions */
          std::string strLinkGeometry;
          GetNodeAttribute(t_tree, "geometry", strLinkGeometry);
          if(strLinkGeometry == "box") {
-            /* requested geometry is a box*/
-            CVector3 cSize;
-            GetNodeAttribute(t_tree, "size", cSize);
-            m_pcGeometry = new CBoxGeometry3(cSize);
+            m_eGeometry = BOX; 
+            GetNodeAttribute(t_tree, "size", m_cExtents);
          } else if(strLinkGeometry == "cylinder") {
-            /* requested geometry is a cylinder */
-            Real fHeight, fRadius;
+            m_eGeometry = CYLINDER;
+            Real fRadius;
+            Real fHeight;
             GetNodeAttribute(t_tree, "height", fHeight);
             GetNodeAttribute(t_tree, "radius", fRadius);
-            m_pcGeometry = new CCylinderGeometry3(fRadius, fHeight);
+            m_cExtents.Set(fRadius * 2.0f, fRadius * 2.0f, fHeight);
          } else if(strLinkGeometry == "sphere") {
-            /* requested geometry is a sphere */
+            m_eGeometry = SPHERE;
             Real fRadius;
             GetNodeAttribute(t_tree, "radius", fRadius);
-            m_pcGeometry = new CSphereGeometry3(fRadius);
+            m_cExtents.Set(fRadius * 2.0f, fRadius * 2.0f, fRadius * 2.0f);
          } else {
-            /* requested geometry is unknown */
-            THROW_ARGOSEXCEPTION("Unknown geometry type " << strLinkGeometry << " provided");
+            /* unknown geometry requested */
+            THROW_ARGOSEXCEPTION("Geometry \"" << strLinkGeometry << "\" is not implemented");
          }
+         /* Parse link geometry and dimensions */
          GetNodeAttribute(t_tree, "mass", m_fMass);
-         m_pcOffsetPositionalEntity = new CPositionalEntity(this);
-         AddComponent(*m_pcOffsetPositionalEntity);
-         if(NodeExists(t_tree, "offset")) {
-            m_pcOffsetPositionalEntity->Init(GetNode(t_tree, "offset"));
-         }
+         /* create an anchor for this link */
+         // TODO do we really need to be inherited from a positional entity?
+         // TODO do we need to store a pointer to the anchor in this class?
+         m_psAnchor = &(cBody.AddAnchor(GetId(), GetPosition(), GetOrientation()));
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Error while initializing link entity", ex);
@@ -78,26 +64,18 @@ namespace argos {
    /****************************************/
 
    void CLinkEntity::Reset() {
-      CComposableEntity::Reset();
    }
 
    /****************************************/
    /****************************************/
 
    void CLinkEntity::Destroy() {
-      CComposableEntity::Destroy();
-      delete m_pcGeometry;
    }
 
    /****************************************/
    /****************************************/
 
-   void CLinkEntity::UpdateComponents() {}
-
-   /****************************************/
-   /****************************************/
-
-   REGISTER_STANDARD_SPACE_OPERATIONS_ON_COMPOSABLE(CLinkEntity);
+   REGISTER_STANDARD_SPACE_OPERATIONS_ON_ENTITY(CLinkEntity);
 
    /****************************************/
    /****************************************/

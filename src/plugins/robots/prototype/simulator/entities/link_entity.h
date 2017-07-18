@@ -14,13 +14,12 @@ namespace argos {
 
 #include <argos3/core/utility/math/vector3.h>
 #include <argos3/core/utility/math/quaternion.h>
-#include <argos3/core/simulator/entity/composable_entity.h>
-
-#include <argos3/plugins/robots/prototype/utility/geometry3.h>
+#include <argos3/core/simulator/entity/embodied_entity.h>
+#include <argos3/core/simulator/entity/positional_entity.h>
 
 namespace argos {
 
-   class CLinkEntity : public CComposableEntity {
+   class CLinkEntity : public CPositionalEntity {
 
    public:
 
@@ -31,46 +30,34 @@ namespace argos {
       typedef std::vector<CLinkEntity*>::const_iterator TListConstIterator;
 
    public:
+		enum EGeometry {
+			CYLINDER,
+			BOX,
+			SPHERE,
+		};
+
+   public:
 
       CLinkEntity(CComposableEntity* pc_parent);
-
-      CLinkEntity(CComposableEntity* pc_parent,
-                  const std::string& str_id,
-                  const CGeometry3& c_geometry,
-                  const CVector3& c_offset_position,
-                  const CQuaternion& c_offset_orientation,
-                  Real f_mass);
 
       virtual ~CLinkEntity() {}
 
       virtual void Init(TConfigurationNode& t_tree);
+
       virtual void Reset();
+
       virtual void Destroy();
-
-      virtual void UpdateComponents();
-
-      CPositionalEntity& GetPositionalEntity() {
-         return *m_pcPositionalEntity;
-      }
-
-      const CPositionalEntity& GetPositionalEntity() const {
-         return *m_pcPositionalEntity;
-      }
-      
-      CPositionalEntity& GetOffsetPositionalEntity() {
-         return *m_pcOffsetPositionalEntity;
-      }
-      
-      const CPositionalEntity& GetOffsetPositionalEntity() const {
-         return *m_pcOffsetPositionalEntity;
-      } 
 
       virtual std::string GetTypeDescription() const {
          return "link";
       }
 
-      const CGeometry3& GetGeometry() const {
-         return *m_pcGeometry;
+      EGeometry GetGeometry() const {
+         return m_eGeometry;
+      }
+
+      const CVector3& GetExtents() const {
+         return m_cExtents;
       }
 
       Real GetMass() const {
@@ -79,13 +66,10 @@ namespace argos {
 
    private:
 
-      CPositionalEntity* m_pcPositionalEntity;
-      CPositionalEntity* m_pcOffsetPositionalEntity;
-
-      CGeometry3* m_pcGeometry;
-
-public: // hack - make this private again
-      Real m_fMass;
+		EGeometry m_eGeometry;
+		CVector3 m_cExtents;
+		Real m_fMass;
+      SAnchor* m_psAnchor;
    };
 
 }
