@@ -3,8 +3,6 @@
 
 namespace argos {
 
-   //TODO attempt to use btrigidbody on the stack
-
    /****************************************/
    /****************************************/
 
@@ -59,7 +57,7 @@ namespace argos {
                                cPosition.GetZ(),
                               -cPosition.GetY()));
       /* setup the rigid body */
-GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
+      GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
       
       m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
                                                                      &m_cMotionState,

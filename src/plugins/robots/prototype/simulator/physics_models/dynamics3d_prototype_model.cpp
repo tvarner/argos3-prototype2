@@ -28,6 +28,95 @@ namespace argos {
       m_cPrototypeEntity(c_entity),
       m_cLinkEquippedEntity(c_entity.GetLinkEquippedEntity()),
       m_cJointEquippedEntity(c_entity.GetJointEquippedEntity()) {
+
+      /* reserve memory */
+      size_t unNumLinks = m_cLinkEquippedEntity.GetNumLinks();
+      m_vecLinkInertias.resize(m_cLinkEquippedEntity.GetNumLinks());
+      m_vecLinkShapes.resize(m_cLinkEquippedEntity.GetNumLinks());
+      
+      /* setup the base */
+      CLinkEntity& cBase = m_cLinkEquippedEntity.GetBase();
+
+      btVector3 cBaseHalfExtents(cBase.GetExtents().GetX() * 0.5f,
+                                 cBase.GetExtents().GetZ() * 0.5f,
+                                 cBase.GetExtents().GetY() * 0.5f);
+      
+      /* TODO: factorize the link setup for the base and other links into base class */
+      switch(cBase.GetGeometry()) {
+         case CLinkEntity::EGeometry::BOX:
+            pcBaseShape = CDynamics3DShapeManager::RequestBox(cBaseHalfExtents);
+            break;
+         default:
+            THROW_ARGOSEXCEPTION("Not implemented");
+            break;
+      }
+
+      // TODO: implement a check to determine if inertia is already defined (e.g. via URDF)
+      btScalar fBaseMass = m_cBase.GetMass();
+      
+      pcBaseShape->calculateLocalInertia(fBaseMass, m_vecLinkInertias[0]);
+     
+      SetBody(m_cLinkEquippedEntity.GetNumLinks(), fBaseMass, m_vecLinkInertias[0]);
+
+      // iteratively build model using links
+
+      // error conditions: detached link, loop (e.g. attempting to use the parent or an existing link as the child)
+      // loop over links until the number of remaining links is zero (done) or the remaining links doesn't change (link detached from model)
+      // in base class AddLink(parent, joint type, frame info), SetBaseLink
+      // 
+
+      for(CJointEntity::TList::iterator itJoint = m_cJointEquippedEntity.GetAllJoints().begin();
+          itJoint != m_cJointEquippedEntity.GetAllJoints().end();
+          ++itJoint) {
+
+         // perhaps it's better to get an index?
+         // use anchors directly?
+         CLinkEntity& cParentLink = (*itJoint)->GetParentLink();
+         CLinkEntity& cChildLink = (*itJoint)->GetChildLink();
+
+         btVector3 cHalfExtents(cChildLink.GetExtents().GetX() * 0.5f,
+                                cChildLink.GetExtents().GetZ() * 0.5f,
+                                cChildLink.GetExtents().GetY() * 0.5f);
+         
+         switch(cChildLink.GetGeometry()) {
+         case CLinkEntity::EGeometry::BOX:
+            pcShape = CDynamics3DShapeManager::RequestBox(cHalfExtents);
+            break;
+         default:
+            THROW_ARGOSEXCEPTION("Link geometry not implemented");
+            break;
+         }
+
+         btVector3 cInertia; // to store in vector, also to be stored is the collision shape for adding the object at the end of this loop
+         pcShape->calculateLocalInertia(fBaseMass, cInertia);
+
+         btQuaternion cParentToChild()
+         
+         switch((*itJoint)->GetType()) {
+         case CJointEntity::EType::FIXED:
+            
+
+            // WARNING: HARDED CODED TEST, 0->1
+            GetMultiBody().setupFixed(1, cChildLink.GetMass(), cInertia, 0,  )
+            break;
+         default:
+            THROW_ARGOSEXCEPTION("Joint type not implemented");
+            break;
+         }
+
+
+         
+      }
+
+
+
+
+
+
+      	pMultiBody->finalizeMultiDof();
+
+	pWorld->addMultiBody(pMultiBody);
+
       
       for(CLinkEntity::TList::iterator itLink = m_cLinkEquippedEntity.GetAllLinks().begin();
           itLink != m_cLinkEquippedEntity.GetAllLinks().end();
@@ -35,27 +124,21 @@ namespace argos {
 
          btCollisionShape* pcShape = NULL;
 
-         btVector3 cExtents((*itLink)->GetExtents().GetX() * 0.5f,
-                            (*itLink)->GetExtents().GetZ() * 0.5f,
-                            (*itLink)->GetExtents().GetY() * 0.5f);
          /* check the tag to determine which shape manager to use */
-         switch((*itBody)->GetGeometry().GetTag()) {
-         case CGeometry3::BOX:
-            pcShape = m_cBoxShapeManager.RequestBoxShape(cExtents * 0.5f);
+         switch((*itLink)->GetGeometry()) {
+         case CLinkEntity::EGeometry::BOX:
+            pcShape = CDynamics3DShapeManager::RequestBox(cHalfExtents);
             break;
-         case CGeometry3::CYLINDER:
-            pcShape = m_cCylinderShapeManager.RequestCylinderShape(cExtents * 0.5f);
+         case CLinkEntity::EGeometry::CYLINDER:
+            THROW_ARGOSEXCEPTION("Not implemented");
             break;
-         case CGeometry3::SPHERE:
-            /* we could dynamically cast this geometry to a sphere and take the radius
-             * directly, however this is more efficient */
-            pcShape = m_cSphereShapeManager.RequestSphereShape(cExtents.getX() * 0.5f);
+         case CLinkEntity::EGeometry::SPHERE:
+            THROW_ARGOSEXCEPTION("Not implemented");
             break;
          }
          btTransform cPositionalOffset(ARGoSToBullet((*itBody)->GetOffsetPositionalEntity().GetOrientation()),
                                        ARGoSToBullet((*itBody)->GetOffsetPositionalEntity().GetPosition()));
-         btTransform cGeometricOffset(btQuaternion(0,0,0,1),
-                                      btVector3(0, -cExtents.getY() * 0.5f, 0));
+         btTransform cGeometricOffset(btQuaternion(0,0,0,1), btVector3(0, -cHalfExtents.getY(), 0));
          
          m_vecLocalBodies.push_back(new CDynamics3DBody(this,
                                                         (*itBody)->GetId(), 

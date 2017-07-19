@@ -11,7 +11,7 @@ namespace argos {
                                                                     ComposableEntity& c_entity) :
       CDynamics3DModel(c_engine, c_entity.GetComponent<CEmbodiedEntity>("body")),
       m_cEntity(c_entity),
-      m_cBody(0,NULL,NULL) {}
+      m_cModel(0, 0, btVector3(0,0,0), false, false) {}
 
    /****************************************/
    /****************************************/
@@ -58,7 +58,7 @@ namespace argos {
                                cPosition.GetZ(),
                               -cPosition.GetY()));
       /* setup the rigid body */
-GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
+      GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
       
       m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
                                                                      &m_cMotionState,

@@ -112,6 +112,11 @@ namespace argos {
        */
       virtual void SetBody();
 
+
+      btMultiBody& GetMultiBody() {
+         return m_cMultiBody;
+      }
+
       /**
        * Updates the origin anchor associated to the embodied entity.
        */
@@ -120,7 +125,7 @@ namespace argos {
    private:
 
       CComposableEntity&    m_cEntity;
-      btMultiBody           m_cModel;
+      btMultiBody           m_cMultiBody;
       btDefaultMotionState  m_cMotionState;
 
    protected:

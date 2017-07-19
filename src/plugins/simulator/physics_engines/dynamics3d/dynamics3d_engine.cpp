@@ -60,12 +60,12 @@ namespace argos {
       m_pcBroadphaseInterface = new btDbvtBroadphase;
       m_pcCollisionConfiguration = new btDefaultCollisionConfiguration;
       m_pcCollisionDispatcher = new btCollisionDispatcher(m_pcCollisionConfiguration);
-      m_pcSolver = new btSequentialImpulseConstraintSolver;
+      m_pcSolver = new btMultiBodyConstraintSolver;
       /* Create the physics world */
-      m_pcWorld = new btDiscreteDynamicsWorld(m_pcCollisionDispatcher,
-                                              m_pcBroadphaseInterface,
-                                              m_pcSolver,
-                                              m_pcCollisionConfiguration);
+      m_pcWorld = new btMultiBodyDynamicsWorld(m_pcCollisionDispatcher,
+                                               m_pcBroadphaseInterface,
+                                               m_pcSolver,
+                                               m_pcCollisionConfiguration);
       /* clear the forces in the world (shouldn't  be required as there are no bodies in the world) */
       m_pcWorld->clearForces();
       /* reset the solvers and dispatchers */

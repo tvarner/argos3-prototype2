@@ -36,24 +36,24 @@ namespace argos {
       virtual void Init(TConfigurationNode& t_tree);
       virtual void Reset();
       virtual void Update() {}
-      /*
-      void AddLink(const CVector3& c_position,
-                   const CQuaternion& c_orientation,
-                   const CVector3& c_size,
-                   Real f_mass);
-      */
+
       CLinkEntity& GetLink(UInt32 un_index);
 
-      CLinkEntity& GetReferenceLink() {
-         return *m_pcReferenceLink;
+      CLinkEntity& GetBase() {
+         return *m_pcBase;
       }
 
-      inline CLinkEntity::TList& GetAllBodies() {
-         return m_tBodies;
+      inline CLinkEntity::TList& GetAllLinks() {
+         return m_tLinks;
       }
+
+      inline size_t GetNumLinks() {
+         return m_tLinks.size();
+      }
+
 
       virtual std::string GetTypeDescription() const {
-         return "bodies";
+         return "links";
       }
 
    protected:
@@ -61,10 +61,10 @@ namespace argos {
       virtual void UpdateComponents();
 
    protected:
+      // todo, why is this protected? use link 0 as base link
+      CLinkEntity::TList m_tLinks;
 
-      CLinkEntity::TList m_tBodies;
-
-      CLinkEntity * m_pcReferenceLink;
+      CLinkEntity* m_pcBase;
    };
 
 }

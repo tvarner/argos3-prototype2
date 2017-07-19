@@ -12,7 +12,7 @@
 
 namespace argos {
 
-   class CDynamics3DPrototypeModel : public CDynamics3DModel {
+   class CDynamics3DPrototypeModel : public CDynamics3DMultiBodyObjectModel {
 
    public:
 
@@ -30,55 +30,8 @@ namespace argos {
    private:
 
       CPrototypeEntity&       m_cPrototypeEntity;
-      CBodyEquippedEntity&    m_cBodyEquippedEntity;
+      CLinkEquippedEntity&    m_cLinkEquippedEntity;
       CJointEquippedEntity&   m_cJointEquippedEntity;
-     
-      
-      class CBoxShapeManager {
-         public:
-            btBoxShape* RequestBoxShape(const btVector3& c_half_extents);
-            void ReleaseBoxShape(const btBoxShape* pc_release);
-         private:
-            struct CResource {
-               CResource(const btVector3& c_half_extents, btBoxShape* c_shape);
-               btVector3 m_cHalfExtents;
-               btBoxShape* m_cShape;
-               UInt32 m_unInUseCount;
-            };
-            std::vector<CResource> m_vecResources;
-      };
-      
-      class CCylinderShapeManager {
-         public:
-            btCylinderShape* RequestCylinderShape(const btVector3& c_half_extents);
-            void ReleaseCylinderShape(const btCylinderShape* pc_release);
-         private:
-            struct CResource {
-               CResource(const btVector3& c_half_extents, btCylinderShape* c_shape);
-               btVector3 m_cHalfExtents;
-               btCylinderShape* m_cShape;
-               UInt32 m_unInUseCount;
-            };
-            std::vector<CResource> m_vecResources;
-      };
-
-      class CSphereShapeManager {
-         public:
-            btSphereShape* RequestSphereShape(Real f_radius);
-            void ReleaseSphereShape(const btSphereShape* pc_release);
-         private:
-            struct CResource {
-               CResource(Real f_radius, btSphereShape* c_shape);
-               Real m_fRadius;
-               btSphereShape* m_cShape;
-               UInt32 m_unInUseCount;
-            };
-            std::vector<CResource> m_vecResources;
-      };
-      
-      static CBoxShapeManager m_cBoxShapeManager;
-      static CCylinderShapeManager m_cCylinderShapeManager;
-      static CSphereShapeManager m_cSphereShapeManager;
    };
 }
 

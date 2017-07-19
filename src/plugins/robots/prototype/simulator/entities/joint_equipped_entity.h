@@ -43,12 +43,6 @@ namespace argos {
          return m_tJoints;
       }
 
-      void SetJointPosition(UInt32 un_index,
-                           const CVector3& c_position);
-
-      void SetJointOrientation(UInt32 un_index,
-                              const CQuaternion& c_orientation);
-
       virtual std::string GetTypeDescription() const {
          return "joints";
       }

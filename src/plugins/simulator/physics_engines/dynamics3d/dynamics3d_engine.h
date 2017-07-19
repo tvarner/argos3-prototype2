@@ -89,7 +89,7 @@ namespace argos {
       btBroadphaseInterface*                 m_pcBroadphaseInterface;
       btDefaultCollisionConfiguration*       m_pcCollisionConfiguration;
       btCollisionDispatcher*                 m_pcCollisionDispatcher;
-      btSequentialImpulseConstraintSolver*   m_pcSolver;
+      btMultiBodyConstraintSolver*           m_pcSolver;
       btDiscreteDynamicsWorld*               m_pcWorld;
       
       /* Ground */

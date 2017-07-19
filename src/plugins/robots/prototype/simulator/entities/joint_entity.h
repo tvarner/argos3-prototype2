@@ -27,6 +27,19 @@ namespace argos {
       typedef std::vector<CJointEntity*> TList;
 
    public:
+      enum EType {
+         FIXED,
+         PRISMATIC,
+         REVOLUTE,
+         SPHERICAL,
+         PLANAR,
+      };
+
+      EType GetType() const {
+         return m_eType;
+      }
+
+   public:
 
       template <class T>
       struct SAxisParameters {
@@ -166,8 +179,6 @@ namespace argos {
    private:      
       bool m_bDisableCollisions;
 
-      CFrameEquippedEntity* m_pcFrameEquippedEntity;
-
       CQuaternion m_cJointRotation;
 
       CVector3 m_cJointTranslation;
@@ -179,6 +190,8 @@ namespace argos {
       struct {
          SAxisParameters<Real> m_sX, m_sY, m_sZ;
       } m_sLinearAxes;
+
+      EType m_eType;      
       
 
    };
