@@ -9,17 +9,19 @@
 
 namespace argos {
    class CLinkEntity;
-   class CPositionalEntity;
 }
 
 #include <argos3/core/utility/math/vector3.h>
 #include <argos3/core/utility/math/quaternion.h>
 #include <argos3/core/simulator/entity/embodied_entity.h>
-#include <argos3/core/simulator/entity/positional_entity.h>
 
 namespace argos {
 
-   class CLinkEntity : public CPositionalEntity {
+   // the advantage of using a positional entity is that we cache the location for a visualization plugin
+   // however, if this is the only use, we should remove this and just use the anchor to calculate
+
+   // TODO: collapse this entity into a simple struct inside link equipped entity
+   class CLinkEntity : public CEntity {
 
    public:
 
@@ -63,6 +65,11 @@ namespace argos {
       Real GetMass() const {
          return m_fMass;
       }
+
+      // To decide, perhaps it is more appropiate to have a struct inside link equipped entity than this class and to store a reference to the anchor
+      SAnchor& GetAnchor() {
+         return *m_psAnchor;
+      } 
 
    private:
 

@@ -40,7 +40,7 @@ namespace argos {
       m_unSphereList   = m_unBaseList + 2;
       m_unLEDList      = m_unBaseList + 3;
       m_unPoleList     = m_unBaseList + 4;
-      m_unTagList  = m_unBaseList + 5;
+      m_unTagList      = m_unBaseList + 5;
       
       /* Make box list */
       glNewList(m_unBoxList, GL_COMPILE);
@@ -122,18 +122,19 @@ namespace argos {
 
    void CQTOpenGLPrototype::DrawBodies(CPrototypeEntity& c_entity) {
       /* Draw the bodies */
-      for(CBodyEntity::TList::iterator itBody = c_entity.GetBodyEquippedEntity().GetAllBodies().begin();
-          itBody != c_entity.GetBodyEquippedEntity().GetAllBodies().end();
-          ++itBody) {
+      for(CLinkEntity::TList::iterator itLink = c_entity.GetLinkEquippedEntity().GetAllLinks().begin();
+          itLink != c_entity.GetLinkEquippedEntity().GetAllLinks().end();
+          ++itLink) {
          /* Configure the body material */
          glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, BODY_COLOR);
-         //glPolygonMode(GL_FRONT, GL_LINE);
-         //glPolygonMode(GL_BACK, GL_LINE);
-
+#ifndef NDEBUG
+         glPolygonMode(GL_FRONT, GL_LINE);
+         glPolygonMode(GL_BACK, GL_LINE);
+#endif
          /* Get the position of the body */
-         const CVector3& cPosition = (*itBody)->GetPositionalEntity().GetPosition();
+         const CVector3& cPosition = (*itLink)->GetAnchor().Position;
          /* Get the orientation of the body */
-         const CQuaternion& cOrientation = (*itBody)->GetPositionalEntity().GetOrientation();
+         const CQuaternion& cOrientation = (*itLink)->GetAnchor().Orientation;
          CRadians cZAngle, cYAngle, cXAngle;
          cOrientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
          glPushMatrix();
@@ -144,28 +145,32 @@ namespace argos {
          glRotatef(ToDegrees(cYAngle).GetValue(), 0.0f, 1.0f, 0.0f);
          glRotatef(ToDegrees(cZAngle).GetValue(), 0.0f, 0.0f, 1.0f);
          /* Third, scale the body */
-         glScalef((*itBody)->GetGeometry().GetExtents().GetX(),
-                  (*itBody)->GetGeometry().GetExtents().GetY(),
-                  (*itBody)->GetGeometry().GetExtents().GetZ());
+         glScalef((*itLink)->GetExtents().GetX(),
+                  (*itLink)->GetExtents().GetY(),
+                  (*itLink)->GetExtents().GetZ());
          /* Forth, draw the body by calling the correct list */
-         switch((*itBody)->GetGeometry().GetTag()) {
-         case CGeometry3::BOX:
+         switch((*itLink)->GetGeometry()) {
+         case CLinkEntity::EGeometry::BOX:
             glCallList(m_unBoxList);
             break;
-         case CGeometry3::CYLINDER:
+         case CLinkEntity::EGeometry::CYLINDER:
             glCallList(m_unCylinderList);
             break;
-         case CGeometry3::SPHERE:
+         case CLinkEntity::EGeometry::SPHERE:
             glCallList(m_unSphereList);
             break;
          }
-         //glPolygonMode(GL_FRONT, GL_FILL);
-         //glPolygonMode(GL_BACK, GL_FILL);
+#ifndef NDEBUG
+         glPolygonMode(GL_FRONT, GL_FILL);
+         glPolygonMode(GL_BACK, GL_FILL);
+#endif
          glPopMatrix();
       }
    }
 
+   
    void CQTOpenGLPrototype::DrawDevices(CPrototypeEntity& c_entity) {
+      /*
       if(c_entity.HasComponent("leds")) {
          CPrototypeLEDEquippedEntity& cLEDEquippedEntity = c_entity.GetComponent<CPrototypeLEDEquippedEntity>("leds");            
          for(UInt32 i = 0; i < cLEDEquippedEntity.GetAllLEDs().size(); ++i) {
@@ -177,30 +182,25 @@ namespace argos {
             glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, pfSpecular);
             glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, pfShininess);
             glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, pfEmission);
-            /* Set the material */
             const CColor& cColor = cLEDEquippedEntity.GetLED(i).GetColor();
             pfColor[0] = cColor.GetRed() / 255.0f;
             pfColor[1] = cColor.GetGreen() / 255.0f;
             pfColor[2] = cColor.GetBlue() / 255.0f;
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, pfColor);
-            /* Get position and orientation */
             const CVector3& cPosition = cLEDEquippedEntity.GetLED(i).GetPosition();
             const CQuaternion& cOrientation = cLEDEquippedEntity.GetLED(i).GetOrientation();
             CRadians cZAngle, cYAngle, cXAngle;
             cOrientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
-            /* Translate */
             glTranslatef(cPosition.GetX(), cPosition.GetY(), cPosition.GetZ());
-            /* Rotate */
             glRotatef(ToDegrees(cXAngle).GetValue(), 1.0f, 0.0f, 0.0f);
             glRotatef(ToDegrees(cYAngle).GetValue(), 0.0f, 1.0f, 0.0f);
             glRotatef(ToDegrees(cZAngle).GetValue(), 0.0f, 0.0f, 1.0f);
-            /* Set scale for LEDs */
             glScalef(0.0075,0.0075,0.0005);
-            /* Draw */
             glCallList(m_unBoxList);
             glPopMatrix();
          }
       }
+      */
       
       /*
       if(c_entity.HasComponent("electromagnets")) {
@@ -238,7 +238,8 @@ namespace argos {
          }
       }
       */
-      
+
+      /*
       if(c_entity.HasComponent("tags")) {
          CTagEquippedEntity& cTagEquippedEntity =
             c_entity.GetComponent<CTagEquippedEntity>("tags");
@@ -260,6 +261,7 @@ namespace argos {
             glPopMatrix();
          }
       }
+      */
    }
    
    /****************************************/

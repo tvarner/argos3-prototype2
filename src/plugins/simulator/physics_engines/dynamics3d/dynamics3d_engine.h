@@ -21,6 +21,9 @@ namespace argos {
 #include <argos3/plugins/simulator/physics_engines/dynamics3d/bullet/btBulletDynamicsCommon.h>
 #include <argos3/plugins/simulator/physics_engines/dynamics3d/bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <argos3/plugins/simulator/physics_engines/dynamics3d/bullet/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
+#include <argos3/plugins/simulator/physics_engines/dynamics3d/bullet/BulletDynamics/Featherstone/btMultiBodyConstraintSolver.h>
+#include <argos3/plugins/simulator/physics_engines/dynamics3d/bullet/BulletDynamics/Featherstone/btMultiBodyDynamicsWorld.h>
+
 
 //#include <argos3/plugins/simulator/physics_engines/dynamics3d/dynamics3d_plugin.h>
 //#include <argos3/plugins/simulator/physics_engines/dynamics3d/dynamics3d_model.h>

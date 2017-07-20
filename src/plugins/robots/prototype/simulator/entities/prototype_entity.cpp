@@ -10,13 +10,15 @@
 #include <argos3/plugins/simulator/entities/led_equipped_entity.h>
 
 #include <argos3/plugins/robots/prototype/simulator/entities/link_equipped_entity.h>
-/*
 #include <argos3/plugins/robots/prototype/simulator/entities/joint_equipped_entity.h>
+
+/*
 #include <argos3/plugins/robots/prototype/simulator/entities/camera_equipped_entity.h>
 #include <argos3/plugins/robots/prototype/simulator/entities/electromagnet_equipped_entity.h>
 #include <argos3/plugins/robots/prototype/simulator/entities/tag_equipped_entity.h>
 #include <argos3/plugins/robots/prototype/simulator/entities/radio_equipped_entity.h>
 */
+
 #include <argos3/plugins/robots/prototype/simulator/media/tag_medium.h>
 #include <argos3/plugins/simulator/media/led_medium.h>
 
@@ -31,10 +33,13 @@ namespace argos {
 
    CPrototypeEntity::CPrototypeEntity() :
       CComposableEntity(NULL),
-      m_pcControllableEntity(NULL),
       m_pcEmbodiedEntity(NULL),
-      m_pcLinkEquippedEntity(NULL) {}
-//    m_pcJointEquippedEntity(NULL)
+      m_pcControllableEntity(NULL),
+      m_pcLinkEquippedEntity(NULL),
+      m_pcJointEquippedEntity(NULL),
+      m_pcLEDEquippedEntity(NULL),
+      m_pcProximitySensorEquippedEntity(NULL),
+      m_pcReferenceLink(NULL) {}
 
    /****************************************/
    /****************************************/
@@ -55,17 +60,18 @@ namespace argos {
          m_pcEmbodiedEntity->Init(GetNode(t_tree, "body"));
 
          m_pcLinkEquippedEntity = new CLinkEquippedEntity(this);
+         m_pcLinkEquippedEntity->Init(GetNode(t_tree, "links"));
          AddComponent(*m_pcLinkEquippedEntity);
-         if(NodeExists(t_tree, "links")) {
-            m_pcLinkEquippedEntity->Init(GetNode(t_tree, "links"));
-         }
-/*
+
+         std::string strReferenceLink;
+         GetNodeAttribute(t_tree, "ref", strReferenceLink);
+         m_pcReferenceLink = &(m_pcLinkEquippedEntity->GetLink(strReferenceLink));
+
          m_pcJointEquippedEntity = new CJointEquippedEntity(this);
          AddComponent(*m_pcJointEquippedEntity);
          if(NodeExists(t_tree, "joints")) {
             m_pcJointEquippedEntity->Init(GetNode(t_tree, "joints"));
          }
-*/
          if(NodeExists(t_tree, "devices")) {
             TConfigurationNodeIterator itDevice;
             for(itDevice = itDevice.begin(&GetNode(t_tree, "devices"));
@@ -73,20 +79,18 @@ namespace argos {
                 ++itDevice) {
 
                if(itDevice->Value() == "rangefinders") {
-                  CProximitySensorEquippedEntity* m_pcEquippedEntity =
-                     new CProximitySensorEquippedEntity(this);
-                  m_pcEquippedEntity->Init(*itDevice);
-                  AddComponent(*m_pcEquippedEntity);
+                  m_pcProximitySensorEquippedEntity = new CProximitySensorEquippedEntity(this);
+                  m_pcProximitySensorEquippedEntity->Init(*itDevice);
+                  AddComponent(*m_pcProximitySensorEquippedEntity);
                }
                else if(itDevice->Value() == "leds" ) {
-                  CLEDEquippedEntity* m_pcEquippedEntity =
-                     new CLEDEquippedEntity(this);
-                  m_pcEquippedEntity->Init(*itDevice);
+                  m_pcLEDEquippedEntity = new CLEDEquippedEntity(this);
+                  m_pcLEDEquippedEntity->Init(*itDevice);
                   /* Add the LEDs to the specified medium */
                   std::string strMedium;
                   GetNodeAttribute(*itDevice, "medium", strMedium);
-                  m_pcEquippedEntity->AddToMedium(CSimulator::GetInstance().GetMedium<CLEDMedium>(strMedium));
-                  AddComponent(*m_pcEquippedEntity);
+                  m_pcLEDEquippedEntity->AddToMedium(CSimulator::GetInstance().GetMedium<CLEDMedium>(strMedium));
+                  AddComponent(*m_pcLEDEquippedEntity);
                }
 /*
                else if(itDevice->Value() == "cameras" ) {
@@ -118,7 +122,7 @@ namespace argos {
                }
 */
                else {
-THROW_ARGOSEXCEPTION("Attempt to add unimplemented device type \"" << itDevice->Value() << "\".");
+THROW_ARGOSEXCEPTION("Device type \"" << itDevice->Value() << "\" not implemented");
                }
             }
          }

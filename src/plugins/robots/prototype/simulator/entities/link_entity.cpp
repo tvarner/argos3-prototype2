@@ -14,7 +14,7 @@ namespace argos {
    /****************************************/
 
    CLinkEntity::CLinkEntity(CComposableEntity* pc_parent) :
-      CPositionalEntity(pc_parent),
+      CEntity(pc_parent),
       m_fMass(0.0f) {}
 
    /****************************************/
@@ -23,7 +23,7 @@ namespace argos {
    void CLinkEntity::Init(TConfigurationNode& t_tree) {
       try {
          /* Init parent */
-         CPositionalEntity::Init(t_tree);
+         CEntity::Init(t_tree);
          /* Get a link to the emboddied entity */
          CEmbodiedEntity& cBody = GetParent().GetComponent<CEmbodiedEntity>("body");
          /* Parse link geometry and dimensions */
@@ -50,10 +50,17 @@ namespace argos {
          }
          /* Parse link geometry and dimensions */
          GetNodeAttribute(t_tree, "mass", m_fMass);
+         /* Get the position of the link wrt. the body */
+         CVector3 cOffsetPosition;
+         GetNodeAttributeOrDefault(t_tree, "position", cOffsetPosition, cOffsetPosition);
+         /* Get the orientation of the link wrt. the body */
+         CQuaternion cOffsetOrientation;
+         GetNodeAttributeOrDefault(t_tree, "orientation", cOffsetOrientation, cOffsetOrientation);
          /* create an anchor for this link */
-         // TODO do we really need to be inherited from a positional entity?
-         // TODO do we need to store a pointer to the anchor in this class?
-         m_psAnchor = &(cBody.AddAnchor(GetId(), GetPosition(), GetOrientation()));
+         // TODO do we really need to be inherited from a positional entity? No. The anchor stores the location of this link in the GCS
+         // TODO do we need to store a pointer to the anchor in this class? Yes. Since we don't use the positional entity, the anchor contains the position and orientation of this link
+         // TODO if we merge this functionality into link equipped entity and create a struct, we can just use it's constructor to init the reference to the anchor
+         m_psAnchor = &(cBody.AddAnchor(GetId(), cOffsetPosition, cOffsetOrientation));
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Error while initializing link entity", ex);

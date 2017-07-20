@@ -39,6 +39,8 @@ namespace argos {
 
       CLinkEntity& GetLink(UInt32 un_index);
 
+      CLinkEntity& GetLink(const std::string& str_link_id);
+
       CLinkEntity& GetBase() {
          return *m_pcBase;
       }

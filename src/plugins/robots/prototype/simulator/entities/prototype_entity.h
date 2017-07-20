@@ -8,15 +8,17 @@
 #define PROTOTYPE_ENTITY_H
 
 namespace argos {
-   class CControllableEntity;
    class CEmbodiedEntity;
-//   class CJointEquippedEntity;
+   class CControllableEntity;
+   class CLinkEquippedEntity;
+   class CLinkEntity;
+   class CJointEquippedEntity;
+   class CLEDEquippedEntity;
+   class CProximitySensorEquippedEntity;
    class CPrototypeEntity;
 }
 
 #include <argos3/core/simulator/entity/composable_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/link_equipped_entity.h>
-//#include <argos3/plugins/robots/prototype/simulator/entities/joint_equipped_entity.h>
 
 namespace argos {
 
@@ -40,32 +42,51 @@ namespace argos {
          return *m_pcEmbodiedEntity;
       }
 
+      inline CControllableEntity& GetControllableEntity() {
+         return *m_pcControllableEntity;
+      }
+
       inline CLinkEquippedEntity& GetLinkEquippedEntity() {
          return *m_pcLinkEquippedEntity;
       }
 
-//      inline CJointEquippedEntity& GetJointEquippedEntity() {
-//         return *m_pcJointEquippedEntity;
-//      }
-
-      inline bool HasControllableEntity() {
-         return m_pcControllableEntity != NULL;
+      inline CJointEquippedEntity& GetJointEquippedEntity() {
+         return *m_pcJointEquippedEntity;
       }
 
-      inline CControllableEntity& GetControllableEntity() {
-         return *m_pcControllableEntity;
+      inline CLEDEquippedEntity& GetLEDEquippedEntity() {
+         ARGOS_ASSERT(m_pcLEDEquippedEntity != NULL,
+                      "CPrototypeEntity::GetLEDEquippedEntity(), id=\"" <<
+                      GetId() <<
+                      "\": was not initialized with an LED equipped entity");
+         return *m_pcLEDEquippedEntity;
+      }
+
+      inline CProximitySensorEquippedEntity& GetProximitySensorEquippedEntity() {
+         ARGOS_ASSERT(m_pcProximitySensorEquippedEntity != NULL,
+                      "CPrototypeEntity::GetProximitySensorEquippedEntity(), id=\"" <<
+                      GetId() <<
+                      "\": was not initialized with an proximity sensor equipped entity");
+         return *m_pcProximitySensorEquippedEntity;
       }
 
       virtual std::string GetTypeDescription() const {
          return "prototype";
       }
 
-   private:
+      inline CLinkEntity& GetReferenceLink() {
+         return *m_pcReferenceLink;
+      }
 
-      CControllableEntity* m_pcControllableEntity;
+   private:
       CEmbodiedEntity* m_pcEmbodiedEntity;
+      CControllableEntity* m_pcControllableEntity;
       CLinkEquippedEntity* m_pcLinkEquippedEntity;
-//      CJointEquippedEntity* m_pcJointEquippedEntity;
+      CJointEquippedEntity* m_pcJointEquippedEntity;
+      CLEDEquippedEntity* m_pcLEDEquippedEntity;
+      CProximitySensorEquippedEntity* m_pcProximitySensorEquippedEntity;
+
+      CLinkEntity* m_pcReferenceLink;
    };
 
 }

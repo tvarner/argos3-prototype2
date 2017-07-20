@@ -6,7 +6,7 @@
 
 #include "joint_entity.h"
 
-#include <argos3/plugins/robots/prototype/simulator/entities/frame_equipped_entity.h>
+#include <argos3/plugins/robots/prototype/simulator/entities/link_equipped_entity.h>
 
 namespace argos {
 
@@ -15,8 +15,7 @@ namespace argos {
 
    CJointEntity::CJointEntity(CComposableEntity* pc_parent) :
       CComposableEntity(pc_parent),
-      m_bDisableCollisions(false),
-      m_pcFrameEquippedEntity(NULL) {}
+      m_bDisableCollisions(false) {}
 
    /****************************************/
    /****************************************/
@@ -27,7 +26,6 @@ namespace argos {
                               bool b_disable_collisions) :
       CComposableEntity(pc_parent, str_id),
       m_bDisableCollisions(b_disable_collisions) {
-      m_pcFrameEquippedEntity = new CFrameEquippedEntity(this, "frames");
    }
 
    /****************************************/
@@ -37,114 +35,37 @@ namespace argos {
       try {
          /* Init parent */
          CComposableEntity::Init(t_tree);
-
+         /* Get parent and child links */
+         CLinkEquippedEntity& cLinkEquippedEntity = GetParent().GetComponent<CLinkEquippedEntity>("links");
+         std::string strParentLink;
+         GetNodeAttribute(t_tree, "parent", strParentLink);
+         m_pcParentLink = &(cLinkEquippedEntity.GetLink(strParentLink));
+         std::string strChildLink;
+         GetNodeAttribute(t_tree, "child", strChildLink);
+         m_pcChildLink = &(cLinkEquippedEntity.GetLink(strChildLink));
+         /* Get joint type */
+         std::string strJointType;
+         GetNodeAttribute(t_tree, "type", strJointType);
+         if(strJointType == "fixed") {
+            m_eType = FIXED;
+         }
+         else if(strJointType == "prismatic") {
+            m_eType = PRISMATIC;
+         }
+         else if(strJointType == "revolute") {
+            m_eType = REVOLUTE;
+         }
+         else if(strJointType == "spherical") {
+            m_eType = SPHERICAL;
+         }
+         else if(strJointType == "planar") {
+            m_eType = PLANAR;
+         }
+         else {
+            THROW_ARGOSEXCEPTION("Joint type \"" << strJointType << "\" is not implemented");
+         }
          /* check if we are disabling collisions */
          GetNodeAttributeOrDefault(t_tree, "disable_collisions", m_bDisableCollisions, false);
-
-         m_pcFrameEquippedEntity = new CFrameEquippedEntity(this);
-         if(NodeExists(t_tree, "frames")) {
-            m_pcFrameEquippedEntity->Init(GetNode(t_tree, "frames"));
-         }
-         AddComponent(*m_pcFrameEquippedEntity);
-
-         /* parse the degrees of freedom if they exist */
-         if(NodeExists(t_tree, "axes")) {
-            TConfigurationNode& tAxes = GetNode(t_tree, "axes");
-            
-            TConfigurationNodeIterator itAxis("axis");
-            for(itAxis = itAxis.begin(&tAxes);
-                itAxis != itAxis.end();
-                ++itAxis) {
-
-               std::string strAxisMode, strAxisDirection, strAxisRange;
-               GetNodeAttribute(*itAxis, "mode", strAxisMode);
-               GetNodeAttribute(*itAxis, "direction", strAxisDirection);
-               GetNodeAttribute(*itAxis, "range", strAxisRange);
-
-               bool bAxisUnconstrained = (strAxisRange == "unconstrained");
-               bool bAxisHasActuator = NodeExists(*itAxis, "actuator");
-
-               bool bAxisActuatorEnabled = false;
-               Real fAxisActuatorForce = 0.0f;
-               Real fAxisActuatorTargetVelocity;
-
-               if(bAxisHasActuator) {
-                  TConfigurationNode& tActuator = GetNode(*itAxis, "actuator");
-                  GetNodeAttribute(tActuator, "enabled", bAxisActuatorEnabled);
-                  GetNodeAttribute(tActuator, "force", fAxisActuatorForce);
-                  GetNodeAttribute(tActuator, "target_velocity", fAxisActuatorTargetVelocity);
-               }
-               
-               if(strAxisMode == "linear") {
-                  CRange<Real> cAxisRange = CRange<Real>();
-                  if(!bAxisUnconstrained) {
-                     GetNodeAttribute(*itAxis, "range", cAxisRange);
-                  }
-                  switch(strAxisDirection.c_str()[0]) {
-                  case 'x':
-                     m_sLinearAxes.m_sX = SAxisParameters<Real>(bAxisUnconstrained,
-                                                                cAxisRange,
-                                                                bAxisActuatorEnabled,
-                                                                fAxisActuatorForce,
-                                                                fAxisActuatorTargetVelocity);
-                     break;
-                  case 'y':
-                     m_sLinearAxes.m_sY = SAxisParameters<Real>(bAxisUnconstrained,
-                                                                cAxisRange,
-                                                                bAxisActuatorEnabled,
-                                                                fAxisActuatorForce,
-                                                                fAxisActuatorTargetVelocity);
-                     break;
-                  case 'z':
-                     m_sLinearAxes.m_sZ = SAxisParameters<Real>(bAxisUnconstrained,
-                                                                cAxisRange,
-                                                                bAxisActuatorEnabled,
-                                                                fAxisActuatorForce,
-                                                                fAxisActuatorTargetVelocity);
-                     break;
-                  default:
-                     THROW_ARGOSEXCEPTION("Error parsing joint axis, axis direction must be one of x, y or z");
-                  }
-               }
-               else if(strAxisMode == "angular") {
-                  CRange<CDegrees> cAxisRangeDegrees = CRange<CDegrees>();
-                  CRange<CRadians> cAxisRangeRadians = CRange<CRadians>();
-                  if(!bAxisUnconstrained) {
-                     GetNodeAttribute(*itAxis, "range", cAxisRangeDegrees);
-                     cAxisRangeRadians.Set(ToRadians(cAxisRangeDegrees.GetMin()),
-                                           ToRadians(cAxisRangeDegrees.GetMax()));
-                  }
-                  switch(strAxisDirection.c_str()[0]) {
-                  case 'x':
-                     m_sAngularAxes.m_sX = SAxisParameters<CRadians>(bAxisUnconstrained,
-                                                                     cAxisRangeRadians,
-                                                                     bAxisActuatorEnabled,
-                                                                     fAxisActuatorForce,
-                                                                     fAxisActuatorTargetVelocity);
-                     break;
-                  case 'y':
-                     m_sAngularAxes.m_sY = SAxisParameters<CRadians>(bAxisUnconstrained,
-                                                                     cAxisRangeRadians,
-                                                                     bAxisActuatorEnabled,
-                                                                     fAxisActuatorForce,
-                                                                     fAxisActuatorTargetVelocity);
-                     break;
-                  case 'z':
-                     m_sAngularAxes.m_sZ = SAxisParameters<CRadians>(bAxisUnconstrained,
-                                                                     cAxisRangeRadians,
-                                                                     bAxisActuatorEnabled,
-                                                                     fAxisActuatorForce,
-                                                                     fAxisActuatorTargetVelocity);
-                     break;
-                  default:
-                     THROW_ARGOSEXCEPTION("Error parsing joint axis, axis direction must be one of x, y or z");
-                  }
-               }
-               else {
-                  THROW_ARGOSEXCEPTION("Error parsing joint axis, axis mode must be either linear or angular");
-               }
-            }
-         }
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Error while initializing joint entity", ex);
@@ -154,16 +75,29 @@ namespace argos {
    /****************************************/
    /****************************************/
 
+   CLinkEntity& GetParentLink() {
+      return *m_pcParentLink;
+   }
+
+   /****************************************/
+   /****************************************/
+      
+   CLinkEntity& GetChildLink() {
+      return *m_pcChildLink;
+   }
+
+   /****************************************/
+   /****************************************/
+
+
    void CJointEntity::Reset() {
       CComposableEntity::Reset();
-      m_pcFrameEquippedEntity->Reset();
    }
 
    /****************************************/
    /****************************************/
 
    void CJointEntity::Destroy() {
-      //m_pcFrameEquippedEntity->Destroy();      
       CComposableEntity::Destroy();
    }
 

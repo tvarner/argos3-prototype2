@@ -110,7 +110,7 @@ namespace argos {
        * <p>
        * @param pt_body The object body.
        */
-      virtual void SetBody();
+      virtual void SetMultiBody(size_t un_links, btScalar f_mass, const btVector3& c_inertia);
 
 
       btMultiBody& GetMultiBody() {
@@ -126,14 +126,6 @@ namespace argos {
 
       CComposableEntity&    m_cEntity;
       btMultiBody           m_cMultiBody;
-      btDefaultMotionState  m_cMotionState;
-
-   protected:
-      btCollisionShape*     m_pcShape;
-      btVector3             m_cInertia;
-      btScalar              m_fMass;
-      btTransform           m_cGeometricOffset;
-      btTransform           m_cPositionalOffset;
    };
 
 }

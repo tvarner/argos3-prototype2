@@ -127,31 +127,20 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DMultiBodyObjectModel::SetBody() {
-      /* create a motion state */
-      m_cMotionState = btDefaultMotionState(m_cPositionalOffset, m_cGeometricOffset);
-      /* Set position */
-      const CVector3& cPosition = GetEmbodiedEntity().GetOriginAnchor().Position;
-      const CQuaternion& cOrientation = GetEmbodiedEntity().GetOriginAnchor().Orientation;
-
-      m_cMotionState.m_graphicsWorldTrans =
-         btTransform(btQuaternion(cOrientation.GetX(),
-                                  cOrientation.GetZ(), 
-                                 -cOrientation.GetY(),
-                                  cOrientation.GetW()),
-                     btVector3(cPosition.GetX(),
-                               cPosition.GetZ(),
-                              -cPosition.GetY()));
-      /* setup the rigid body */
-      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
+      /* setup the multi body model */
+      m_cMultiBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
                                                                      &m_cMotionState,
                                                                      m_pcShape,
-                                                                     m_cInertia));   
+                                                                     m_cInertia));
+
+      m_cMultiBody.finalizeMultiDof();
+
       /* set the default surface friction */
-      m_cBody.setFriction(0.5f);
+      m_cMultiBody.setFriction(0.5f);
       /* For reverse look up */
       m_cBody.setUserPointer(this);
       /* Add body to world */
-      GetEngine().GetPhysicsWorld()->addRigidBody(&m_cBody);
+      GetEngine().GetPhysicsWorld()->addMultiBody(m_cMultiBody);
       /* Register the origin anchor update method */
       RegisterAnchorMethod(GetEmbodiedEntity().GetOriginAnchor(),
                            &CDynamics3DMultiBodyObjectModel::UpdateOriginAnchor);
@@ -163,14 +152,6 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DMultiBodyObjectModel::UpdateOriginAnchor(SAnchor& s_anchor) {
-      const btVector3& cPosition = (m_cMotionState.m_graphicsWorldTrans).getOrigin();
-      const btQuaternion cOrientation = (m_cMotionState.m_graphicsWorldTrans).getRotation();         /* swap coordinate system and set position */
-      s_anchor.Position.Set(cPosition.getX(), -cPosition.getZ(), cPosition.getY());
-      /* swap coordinate system and set orientation */
-      s_anchor.Orientation.Set(cOrientation.getW(),
-                               cOrientation.getX(),
-                              -cOrientation.getZ(),
-                               cOrientation.getY());
    }
 
    /****************************************/
