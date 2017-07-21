@@ -7,13 +7,16 @@
 #include "qtopengl_prototype.h"
 #include <argos3/core/utility/math/vector2.h>
 #include <argos3/core/simulator/entity/embodied_entity.h>
+
+#include <argos3/plugins/simulator/entities/led_equipped_entity.h>
 #include <argos3/plugins/simulator/visualizations/qt-opengl/qtopengl_widget.h>
+
 #include <argos3/plugins/robots/prototype/simulator/entities/prototype_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/prototype_led_equipped_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/electromagnet_equipped_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/tag_equipped_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/entities/camera_equipped_entity.h>
-#include <argos3/plugins/robots/prototype/simulator/sensors/cameras_default_sensor.h>
+#include <argos3/plugins/robots/prototype/simulator/entities/link_equipped_entity.h>
+//#include <argos3/plugins/robots/prototype/simulator/entities/electromagnet_equipped_entity.h>
+//#include <argos3/plugins/robots/prototype/simulator/entities/tag_equipped_entity.h>
+//#include <argos3/plugins/robots/prototype/simulator/entities/camera_equipped_entity.h>
+//#include <argos3/plugins/robots/prototype/simulator/sensors/cameras_default_sensor.h>
 
 namespace argos {
 
@@ -122,19 +125,19 @@ namespace argos {
 
    void CQTOpenGLPrototype::DrawBodies(CPrototypeEntity& c_entity) {
       /* Draw the bodies */
-      for(CLinkEntity::TList::iterator itLink = c_entity.GetLinkEquippedEntity().GetAllLinks().begin();
+      for(CLinkEntity::TMap::iterator itLink = c_entity.GetLinkEquippedEntity().GetAllLinks().begin();
           itLink != c_entity.GetLinkEquippedEntity().GetAllLinks().end();
           ++itLink) {
          /* Configure the body material */
          glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, BODY_COLOR);
-#ifndef NDEBUG
-         glPolygonMode(GL_FRONT, GL_LINE);
-         glPolygonMode(GL_BACK, GL_LINE);
-#endif
+//#ifndef NDEBUG
+//         glPolygonMode(GL_FRONT, GL_LINE);
+//         glPolygonMode(GL_BACK, GL_LINE);
+//#endif
          /* Get the position of the body */
-         const CVector3& cPosition = (*itLink)->GetAnchor().Position;
+         const CVector3& cPosition = itLink->second->GetAnchor().Position;
          /* Get the orientation of the body */
-         const CQuaternion& cOrientation = (*itLink)->GetAnchor().Orientation;
+         const CQuaternion& cOrientation = itLink->second->GetAnchor().Orientation;
          CRadians cZAngle, cYAngle, cXAngle;
          cOrientation.ToEulerAngles(cZAngle, cYAngle, cXAngle);
          glPushMatrix();
@@ -145,11 +148,11 @@ namespace argos {
          glRotatef(ToDegrees(cYAngle).GetValue(), 0.0f, 1.0f, 0.0f);
          glRotatef(ToDegrees(cZAngle).GetValue(), 0.0f, 0.0f, 1.0f);
          /* Third, scale the body */
-         glScalef((*itLink)->GetExtents().GetX(),
-                  (*itLink)->GetExtents().GetY(),
-                  (*itLink)->GetExtents().GetZ());
+         glScalef(itLink->second->GetExtents().GetX(),
+                  itLink->second->GetExtents().GetY(),
+                  itLink->second->GetExtents().GetZ());
          /* Forth, draw the body by calling the correct list */
-         switch((*itLink)->GetGeometry()) {
+         switch(itLink->second->GetGeometry()) {
          case CLinkEntity::EGeometry::BOX:
             glCallList(m_unBoxList);
             break;
@@ -160,10 +163,10 @@ namespace argos {
             glCallList(m_unSphereList);
             break;
          }
-#ifndef NDEBUG
-         glPolygonMode(GL_FRONT, GL_FILL);
-         glPolygonMode(GL_BACK, GL_FILL);
-#endif
+//#ifndef NDEBUG
+//         glPolygonMode(GL_FRONT, GL_FILL);
+//         glPolygonMode(GL_BACK, GL_FILL);
+//#endif
          glPopMatrix();
       }
    }

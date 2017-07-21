@@ -39,7 +39,8 @@ namespace argos {
       m_pcJointEquippedEntity(NULL),
       m_pcLEDEquippedEntity(NULL),
       m_pcProximitySensorEquippedEntity(NULL),
-      m_pcReferenceLink(NULL) {}
+      m_pcReferenceLink(NULL),
+      m_bHasControllableEntity(false) {}
 
    /****************************************/
    /****************************************/
@@ -59,13 +60,15 @@ namespace argos {
          AddComponent(*m_pcEmbodiedEntity);
          m_pcEmbodiedEntity->Init(GetNode(t_tree, "body"));
 
+         /* hack */
+         GetNodeAttribute(t_tree, "ref", m_strReferenceLink);
+
          m_pcLinkEquippedEntity = new CLinkEquippedEntity(this);
          m_pcLinkEquippedEntity->Init(GetNode(t_tree, "links"));
          AddComponent(*m_pcLinkEquippedEntity);
 
-         std::string strReferenceLink;
-         GetNodeAttribute(t_tree, "ref", strReferenceLink);
-         m_pcReferenceLink = &(m_pcLinkEquippedEntity->GetLink(strReferenceLink));
+         /* hack */
+         m_pcReferenceLink = &(m_pcLinkEquippedEntity->GetLink(m_strReferenceLink));
 
          m_pcJointEquippedEntity = new CJointEquippedEntity(this);
          AddComponent(*m_pcJointEquippedEntity);

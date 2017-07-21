@@ -27,9 +27,7 @@ namespace argos {
 
       ENABLE_VTABLE();
 
-      typedef std::vector<CLinkEntity*> TList;
-      typedef std::vector<CLinkEntity*>::iterator TListIterator;
-      typedef std::vector<CLinkEntity*>::const_iterator TListConstIterator;
+      typedef std::map<std::string, CLinkEntity*> TMap;
 
    public:
 		enum EGeometry {

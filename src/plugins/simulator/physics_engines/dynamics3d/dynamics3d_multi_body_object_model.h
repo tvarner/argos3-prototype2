@@ -85,7 +85,7 @@ namespace argos {
 
       virtual void CalculateBoundingBox();
 
-      virtual void UpdateFromEntityStatus()  = 0;
+      virtual void UpdateFromEntityStatus() = 0;
 
       virtual bool IsCollidingWithSomething() const;
       
@@ -110,11 +110,13 @@ namespace argos {
        * <p>
        * @param pt_body The object body.
        */
-      virtual void SetMultiBody(size_t un_links, btScalar f_mass, const btVector3& c_inertia);
+      virtual void SetBase(size_t un_links, btScalar f_mass, const btVector3& c_inertia);
+
+      virtual void Finalize();
 
 
       btMultiBody& GetMultiBody() {
-         return m_cMultiBody;
+         return *m_pcMultiBody;
       }
 
       /**
@@ -125,7 +127,7 @@ namespace argos {
    private:
 
       CComposableEntity&    m_cEntity;
-      btMultiBody           m_cMultiBody;
+      btMultiBody*          m_pcMultiBody;
    };
 
 }

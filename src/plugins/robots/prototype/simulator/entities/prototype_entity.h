@@ -42,16 +42,24 @@ namespace argos {
          return *m_pcEmbodiedEntity;
       }
 
-      inline CControllableEntity& GetControllableEntity() {
-         return *m_pcControllableEntity;
-      }
-
       inline CLinkEquippedEntity& GetLinkEquippedEntity() {
          return *m_pcLinkEquippedEntity;
       }
 
       inline CJointEquippedEntity& GetJointEquippedEntity() {
          return *m_pcJointEquippedEntity;
+      }
+
+      inline bool HasControllableEntity() const {
+         return (m_pcLEDEquippedEntity != NULL);
+      }
+
+      inline CControllableEntity& GetControllableEntity() {
+         ARGOS_ASSERT(m_pcLEDEquippedEntity != NULL,
+                      "CPrototypeEntity::GetControllableEntity(), id=\"" <<
+                      GetId() <<
+                      "\": was not initialized with a controllable entity");
+         return *m_pcControllableEntity;
       }
 
       inline CLEDEquippedEntity& GetLEDEquippedEntity() {
@@ -66,7 +74,7 @@ namespace argos {
          ARGOS_ASSERT(m_pcProximitySensorEquippedEntity != NULL,
                       "CPrototypeEntity::GetProximitySensorEquippedEntity(), id=\"" <<
                       GetId() <<
-                      "\": was not initialized with an proximity sensor equipped entity");
+                      "\": was not initialized with a proximity sensor equipped entity");
          return *m_pcProximitySensorEquippedEntity;
       }
 
@@ -87,6 +95,9 @@ namespace argos {
       CProximitySensorEquippedEntity* m_pcProximitySensorEquippedEntity;
 
       CLinkEntity* m_pcReferenceLink;
+      bool m_bHasControllableEntity;
+   public: // hack
+      std::string m_strReferenceLink;
    };
 
 }

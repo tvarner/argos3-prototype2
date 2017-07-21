@@ -26,8 +26,8 @@ if(ARGOS_BUILD_FOR_SIMULATOR)
 #    simulator/entities/tag_equipped_entity.h
     simulator/entities/link_entity.h
     simulator/entities/link_equipped_entity.h
-#    simulator/entities/joint_entity.h
-#    simulator/entities/joint_equipped_entity.h
+    simulator/entities/joint_entity.h
+    simulator/entities/joint_equipped_entity.h
 #    simulator/entities/electromagnet_entity.h
 #    simulator/entities/electromagnet_equipped_entity.h
 #    simulator/entities/camera_entity.h
@@ -79,8 +79,8 @@ if(ARGOS_BUILD_FOR_SIMULATOR)
 #    simulator/entities/tag_equipped_entity.cpp
     simulator/entities/link_entity.cpp
     simulator/entities/link_equipped_entity.cpp
-#    simulator/entities/joint_entity.cpp
-#    simulator/entities/joint_equipped_entity.cpp
+    simulator/entities/joint_entity.cpp
+    simulator/entities/joint_equipped_entity.cpp
 #    simulator/entities/electromagnet_entity.cpp
 #    simulator/entities/electromagnet_equipped_entity.cpp
 #    simulator/entities/camera_entity.cpp
@@ -126,8 +126,8 @@ include_directories(
 add_library(argos3plugin_${ARGOS_BUILD_FOR}_prototype SHARED ${ARGOS3_SOURCES_PLUGINS_ROBOTS_PROTOTYPE})
 target_link_libraries(argos3plugin_${ARGOS_BUILD_FOR}_prototype
   argos3plugin_${ARGOS_BUILD_FOR}_genericrobot
-  argos3plugin_${ARGOS_BUILD_FOR}_actuators
-  argos3plugin_${ARGOS_BUILD_FOR}_sensors
+#  argos3plugin_${ARGOS_BUILD_FOR}_actuators
+#  argos3plugin_${ARGOS_BUILD_FOR}_sensors
   argos3plugin_${ARGOS_BUILD_FOR}_dynamics3d)
 if(ARGOS_COMPILE_QTOPENGL)
   target_link_libraries(argos3plugin_${ARGOS_BUILD_FOR}_prototype argos3plugin_${ARGOS_BUILD_FOR}_qtopengl)

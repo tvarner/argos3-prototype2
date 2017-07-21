@@ -37,7 +37,7 @@ namespace argos {
             CLinkEntity* pcLinkEntity = new CLinkEntity(this);
             pcLinkEntity->Init(*itLink);
             AddComponent(*pcLinkEntity);
-            m_tLinks.push_back(pcLinkEntity);
+            m_tLinks[pcLinkEntity->GetId()] = pcLinkEntity;
          }
       }
       catch(CARGoSException& ex) {
@@ -49,25 +49,11 @@ namespace argos {
    /****************************************/
 
    void CLinkEquippedEntity::Reset() {
-      for(CLinkEntity::TList::iterator it = m_tLinks.begin();
+      for(CLinkEntity::TMap::iterator it = m_tLinks.begin();
           it != m_tLinks.end();
           ++it) {
-         (*it)->Reset();
+         it->second->Reset();
       }
-   }
-
-   /****************************************/
-   /****************************************/
-
-   CLinkEntity& CLinkEquippedEntity::GetLink(UInt32 un_index) {
-      ARGOS_ASSERT(un_index < m_tLinks.size(),
-                   "CLinkEquippedEntity::GetLink(), id=\"" <<
-                   GetId() <<
-                   "\": index out of bounds: un_index = " <<
-                   un_index <<
-                   ", m_tLinks.size() = " <<
-                   m_tLinks.size());
-      return *m_tLinks[un_index];
    }
 
    /****************************************/

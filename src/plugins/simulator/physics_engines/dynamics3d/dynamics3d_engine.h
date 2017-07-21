@@ -53,11 +53,11 @@ namespace argos {
       virtual void CheckIntersectionWithRay(TEmbodiedEntityIntersectionData& t_data,
                                             const CRay3& c_ray) const;
 
-      inline btDiscreteDynamicsWorld* GetPhysicsWorld() {
+      inline btMultiBodyDynamicsWorld* GetPhysicsWorld() {
          return m_pcWorld;
       }
       
-      inline const btDiscreteDynamicsWorld* GetPhysicsWorld() const {
+      inline const btMultiBodyDynamicsWorld* GetPhysicsWorld() const {
          return m_pcWorld;
       }
       
@@ -93,7 +93,7 @@ namespace argos {
       btDefaultCollisionConfiguration*       m_pcCollisionConfiguration;
       btCollisionDispatcher*                 m_pcCollisionDispatcher;
       btMultiBodyConstraintSolver*           m_pcSolver;
-      btDiscreteDynamicsWorld*               m_pcWorld;
+      btMultiBodyDynamicsWorld*              m_pcWorld;
       
       /* Ground */
       btStaticPlaneShape                     m_cGroundShape;

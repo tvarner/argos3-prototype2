@@ -36,7 +36,8 @@ namespace argos {
          /* Init parent */
          CComposableEntity::Init(t_tree);
          /* Get parent and child links */
-         CLinkEquippedEntity& cLinkEquippedEntity = GetParent().GetComponent<CLinkEquippedEntity>("links");
+         // TODO: consider collapsing joint into a simple struct.
+         CLinkEquippedEntity& cLinkEquippedEntity = GetParent().GetParent().GetComponent<CLinkEquippedEntity>("links");
          std::string strParentLink;
          GetNodeAttribute(t_tree, "parent", strParentLink);
          m_pcParentLink = &(cLinkEquippedEntity.GetLink(strParentLink));
@@ -75,14 +76,14 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   CLinkEntity& GetParentLink() {
+   CLinkEntity& CJointEntity::GetParentLink() {
       return *m_pcParentLink;
    }
 
    /****************************************/
    /****************************************/
       
-   CLinkEntity& GetChildLink() {
+   CLinkEntity& CJointEntity::GetChildLink() {
       return *m_pcChildLink;
    }
 

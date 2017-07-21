@@ -24,9 +24,7 @@ namespace argos {
 
       void UpdateLinkAnchor(SAnchor& s_anchor);
 
-   protected:
-
-      virtual btTransform GetModelCoordinates() const;
+      void UpdateBaseAnchor(SAnchor& s_anchor);
 
    private:
 
@@ -34,7 +32,7 @@ namespace argos {
       CLinkEquippedEntity&    m_cLinkEquippedEntity;
       CJointEquippedEntity&   m_cJointEquippedEntity;
 
-      std::vector<btDefaultMotionState> m_vecMotionStates;
+      std::vector<btTransform*> m_vecLinkTransforms;
       std::vector<btCollisionShape*> m_vecLinkShapes;
    };
 }

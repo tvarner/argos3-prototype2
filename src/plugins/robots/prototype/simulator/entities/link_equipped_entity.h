@@ -24,8 +24,6 @@ namespace argos {
 
       ENABLE_VTABLE();
 
-      typedef std::map<std::string, CLinkEquippedEntity*> TMap;
-
    public:
 
       CLinkEquippedEntity(CComposableEntity* pc_parent);
@@ -37,15 +35,17 @@ namespace argos {
       virtual void Reset();
       virtual void Update() {}
 
-      CLinkEntity& GetLink(UInt32 un_index);
+      //CLinkEntity& GetLink(UInt32 un_index);
 
-      CLinkEntity& GetLink(const std::string& str_link_id);
+      CLinkEntity& GetLink(const std::string& str_link_id) {
+         return *m_tLinks[str_link_id];
+      }
 
       CLinkEntity& GetBase() {
          return *m_pcBase;
       }
 
-      inline CLinkEntity::TList& GetAllLinks() {
+      inline CLinkEntity::TMap& GetAllLinks() {
          return m_tLinks;
       }
 
@@ -64,7 +64,7 @@ namespace argos {
 
    protected:
       // todo, why is this protected? use link 0 as base link
-      CLinkEntity::TList m_tLinks;
+      CLinkEntity::TMap m_tLinks;
 
       CLinkEntity* m_pcBase;
    };
