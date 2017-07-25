@@ -24,16 +24,16 @@ namespace argos {
    void CDynamics3DSingleBodyObjectModel::MoveTo(const CVector3& c_position,
                                                  const CQuaternion& c_orientation) {
       /* Transform coordinate systems and move the body */
-      m_cMotionState.m_graphicsWorldTrans =
+      const btTransform& cTransform =
          btTransform(btQuaternion(c_orientation.GetX(),
                                   c_orientation.GetZ(), 
                                  -c_orientation.GetY(),
                                   c_orientation.GetW()),
                      btVector3(c_position.GetX(),
                                c_position.GetZ(),
-                               -c_position.GetY()));
+                              -c_position.GetY()));
+      m_cBody.setWorldTransform(cTransform * m_cCenterOfMassOffset.inverse());
       /* Update body */
-      m_cBody.setMotionState(&m_cMotionState);
       m_cBody.activate();
       /* Update the bounding box */
       CalculateBoundingBox();
@@ -45,10 +45,16 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DSingleBodyObjectModel::Reset() {
-      /* Reset body position */
+      /* setup the rigid body */
+      GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);    
+      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
+                                                                     NULL,
+                                                                     m_pcShape,
+                                                                     m_cInertia));
+      /* Reset body transform */
       const CVector3& cPosition = GetEmbodiedEntity().GetOriginAnchor().Position;
       const CQuaternion& cOrientation = GetEmbodiedEntity().GetOriginAnchor().Orientation;
-      m_cMotionState.m_graphicsWorldTrans =
+      const btTransform& cTransform =
          btTransform(btQuaternion(cOrientation.GetX(),
                                   cOrientation.GetZ(), 
                                  -cOrientation.GetY(),
@@ -56,21 +62,15 @@ namespace argos {
                      btVector3(cPosition.GetX(),
                                cPosition.GetZ(),
                               -cPosition.GetY()));
-      /* setup the rigid body */
-      GetEngine().GetPhysicsWorld()->removeRigidBody(&m_cBody);
-      
-      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
-                                                                     &m_cMotionState,
-                                                                     m_pcShape,
-                                                                     m_cInertia));
-
-      GetEngine().GetPhysicsWorld()->addRigidBody(&m_cBody);
+      m_cBody.setWorldTransform(cTransform * m_cCenterOfMassOffset.inverse());
       /* set the default surface friction */
       m_cBody.setFriction(0.5f);
       /* For reverse look up */
       m_cBody.setUserPointer(this);
       /* Activate the body */
       m_cBody.activate();
+      /* Add body back to engine */
+      GetEngine().GetPhysicsWorld()->addRigidBody(&m_cBody);
       /* Update bounding box */
       CalculateBoundingBox();
    }
@@ -126,13 +126,15 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DSingleBodyObjectModel::SetBody() {
-      /* create a motion state */
-      m_cMotionState = btDefaultMotionState(m_cPositionalOffset, m_cGeometricOffset);
-      /* Set position */
+      /* setup the rigid body */
+      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
+                                                                     NULL,
+                                                                     m_pcShape,
+                                                                     m_cInertia));
+      /* set position */
       const CVector3& cPosition = GetEmbodiedEntity().GetOriginAnchor().Position;
       const CQuaternion& cOrientation = GetEmbodiedEntity().GetOriginAnchor().Orientation;
-
-      m_cMotionState.m_graphicsWorldTrans =
+      const btTransform& cTransform =
          btTransform(btQuaternion(cOrientation.GetX(),
                                   cOrientation.GetZ(), 
                                  -cOrientation.GetY(),
@@ -140,11 +142,7 @@ namespace argos {
                      btVector3(cPosition.GetX(),
                                cPosition.GetZ(),
                               -cPosition.GetY()));
-      /* setup the rigid body */
-      m_cBody = btRigidBody(btRigidBody::btRigidBodyConstructionInfo(m_fMass,
-                                                                     &m_cMotionState,
-                                                                     m_pcShape,
-                                                                     m_cInertia));   
+      m_cBody.setWorldTransform(cTransform * m_cCenterOfMassOffset.inverse());
       /* set the default surface friction */
       m_cBody.setFriction(0.5f);
       /* For reverse look up */
@@ -162,16 +160,19 @@ namespace argos {
    /****************************************/
 
    void CDynamics3DSingleBodyObjectModel::UpdateOriginAnchor(SAnchor& s_anchor) {
-      const btVector3& cPosition = (m_cMotionState.m_graphicsWorldTrans).getOrigin();
-      const btQuaternion cOrientation = (m_cMotionState.m_graphicsWorldTrans).getRotation();         /* swap coordinate system and set position */
+      const btTransform& cTransform = m_cBody.getWorldTransform() * m_cCenterOfMassOffset;
+      const btVector3& cPosition = cTransform.getOrigin();
+      const btQuaternion cOrientation = cTransform.getRotation();
+      /* swap coordinate system and set position */
       s_anchor.Position.Set(cPosition.getX(), -cPosition.getZ(), cPosition.getY());
       /* swap coordinate system and set orientation */
       s_anchor.Orientation.Set(cOrientation.getW(),
                                cOrientation.getX(),
                               -cOrientation.getZ(),
                                cOrientation.getY());
-      LOG << s_anchor.Position << std::endl;
    }
+
+
 
    /****************************************/
    /****************************************/

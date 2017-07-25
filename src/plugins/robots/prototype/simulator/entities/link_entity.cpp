@@ -63,13 +63,8 @@ namespace argos {
          // TODO if we merge this functionality into link equipped entity and create a struct, we can just use it's constructor to init the reference to the anchor
          /* Get a link to the emboddied entity */
          CEmbodiedEntity& cBody = GetParent().GetParent().GetComponent<CEmbodiedEntity>("body");
-         // Note if we move to a simple struct, we won't need to call get parent twice
-         if(GetId() != static_cast<CPrototypeEntity&>(GetParent().GetParent()).m_strReferenceLink) {
-            m_psAnchor = &(cBody.AddAnchor(GetId(), cOffsetPosition, cOffsetOrientation));
-         }
-         else {
-            m_psAnchor = &(cBody.GetOriginAnchor());
-         }
+         // create an anchor for each link, the origin has index 0, link 1 has index 1 and so on
+         m_psAnchor = &(cBody.AddAnchor(GetId(), cOffsetPosition, cOffsetOrientation));
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Error while initializing link entity", ex);

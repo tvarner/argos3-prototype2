@@ -374,7 +374,6 @@ namespace argos {
       }
       glEnd();
       /* The shape definition is finished */
-
       /* We don't need it anymore */
       glDisable(GL_NORMALIZE);
    }

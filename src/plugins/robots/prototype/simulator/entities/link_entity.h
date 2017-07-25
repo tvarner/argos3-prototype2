@@ -69,6 +69,11 @@ namespace argos {
          return *m_psAnchor;
       } 
 
+      const SAnchor& GetAnchor() const {
+         return *m_psAnchor;
+      } 
+
+
    private:
 
 		EGeometry m_eGeometry;

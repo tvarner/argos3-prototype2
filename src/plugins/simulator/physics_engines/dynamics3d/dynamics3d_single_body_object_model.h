@@ -137,14 +137,12 @@ namespace argos {
 
       CComposableEntity&    m_cEntity;
       btRigidBody           m_cBody;
-      btDefaultMotionState  m_cMotionState;
 
    protected:
       btCollisionShape*     m_pcShape;
       btVector3             m_cInertia;
       btScalar              m_fMass;
-      btTransform           m_cGeometricOffset;
-      btTransform           m_cPositionalOffset;
+      btTransform           m_cCenterOfMassOffset;
    };
 
 }

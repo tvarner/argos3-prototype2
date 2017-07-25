@@ -17,9 +17,9 @@
   <!-- * Arena configuration * -->
   <!-- *********************** -->
   <!-- Note: rotations are specified and performed in ZYX order (opposite of ARGoS1) -->
-  <arena size="2, 2, 1" center="0, 0, 0.5">
-    <prototype id="multibody" movable="true" ref="box1">
-      <body position="0,0,1" orientation="0,0,0" />
+  <arena size="2, 2, 2" center="0, 0, 1">
+    <!--prototype id="multibody" movable="true" ref="box1">
+      <body position="0,0,0.5" orientation="0,0,0" />
       <links>
          <link id="box1" geometry="box" size=".1,.1,.1" mass=".25" position="0,0,0" orientation="0,0,0" />
          <link id="box2" geometry="box" size=".1,.1,.1" mass=".25" position=".2,0,0" orientation="0,0,0" />
@@ -27,7 +27,18 @@
       <joints>
          <joint type="fixed" parent="box1" child="box2"/>
       </joints>      
+    </prototype-->
+
+    <prototype id="singlebody" movable="true" ref="box1">
+      <body position="0.1,0,0.5" orientation="0,0,0" />
+      <links>
+         <link id="box1" geometry="box" size=".1,.1,.1" mass=".25" position="0,0,0" orientation="0,0,0" />
+      </links>
     </prototype>
+
+    <box id="b0" size=".1,.1,.1" movable="true" mass="0.25">
+      <body position="-0.1,0,0.5" orientation="0,0,0" />
+    </box>
   </arena>
 
   <!-- ******************* -->

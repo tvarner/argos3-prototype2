@@ -18,11 +18,12 @@ namespace argos {
                                             CBoxEntity& c_box) :
       CDynamics3DSingleBodyObjectModel(c_engine, c_box) {
       /* Fetch a collision shape for this model */
-      m_pcShape = CDynamics3DShapeManager::RequestBox(btVector3(c_box.GetSize().GetX() * 0.5f,
-                                                                c_box.GetSize().GetZ() * 0.5f, 
-                                                                c_box.GetSize().GetY() * 0.5f));
+      m_pcShape = CDynamics3DShapeManager::RequestBox(
+         btVector3(c_box.GetSize().GetX() * 0.5f,
+                   c_box.GetSize().GetZ() * 0.5f, 
+                   c_box.GetSize().GetY() * 0.5f));
       /* calculate the geometric offset */
-      m_cGeometricOffset = btTransform(
+      m_cCenterOfMassOffset = btTransform(
          btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
          btVector3(0.0f, -c_box.GetSize().GetZ() * 0.5f, 0.0f));
       /* calculate the mass */
