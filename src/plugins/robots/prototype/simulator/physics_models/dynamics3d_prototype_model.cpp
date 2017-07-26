@@ -166,6 +166,8 @@ namespace argos {
          if(true) { //parent link exists
             const SLink& sChildLink = AddLink(cChildLink);
             // setup joint
+
+            /*
             btQuaternion cParentLinkOrientation(cParentLink.GetAnchor().OffsetOrientation.GetX(),
                                                 cParentLink.GetAnchor().OffsetOrientation.GetZ(), 
                                                 -cParentLink.GetAnchor().OffsetOrientation.GetY(),
@@ -173,20 +175,72 @@ namespace argos {
             btQuaternion cChildLinkOrientation(cChildLink.GetAnchor().OffsetOrientation.GetX(),
                                                cChildLink.GetAnchor().OffsetOrientation.GetZ(), 
                                                -cChildLink.GetAnchor().OffsetOrientation.GetY(),
-                                               cChildLink.GetAnchor().OffsetOrientation.GetW());
+                                               cChildLink.GetAnchor().OffsetOrientation.GetW());           
             
-            CVector3 cParentToChildOffset = cParentLink.GetAnchor().OffsetPosition - cChildLink.GetAnchor().OffsetPosition;
+            CVector3 cParentToChildOffset = cChildLink.GetAnchor().OffsetPosition - cParentLink.GetAnchor().OffsetPosition;
+            */
+            const btTransform& cCenterOfMassOffset = btTransform(
+               btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
+               btVector3(0.0f, -0.1 * 0.5f, 0.0f));
+
+
+            // CALCULATE THE TRANSLATION AND ROTATION FROM THE PARENT COM TO THE CHILD COM (AKA THE JOINT FRAME)
+
+            const CVector3& cParentOffsetPosition = cParentLink.GetAnchor().OffsetPosition;
+            const CQuaternion& cParentOffsetOrientation = cParentLink.GetAnchor().OffsetOrientation;
+            std::cerr << "cParentOffsetPosition = " << cParentOffsetPosition << std::endl;
+            std::cerr << "cParentOffsetOrientation = " << cParentOffsetOrientation << std::endl;
+
+            btTransform cParentOffsetTransform =
+               btTransform(btQuaternion(cParentOffsetOrientation.GetX(),
+                                        cParentOffsetOrientation.GetZ(), 
+                                       -cParentOffsetOrientation.GetY(),
+                                        cParentOffsetOrientation.GetW()),
+                           btVector3(cParentOffsetPosition.GetX(),
+                                     cParentOffsetPosition.GetZ(),
+                                    -cParentOffsetPosition.GetY()));
+
+            cParentOffsetTransform *= cCenterOfMassOffset.inverse();
+
+            const CVector3& cChildOffsetPosition = cChildLink.GetAnchor().OffsetPosition;
+            const CQuaternion& cChildOffsetOrientation = cChildLink.GetAnchor().OffsetOrientation;
+            std::cerr << "cChildOffsetPosition = " << cChildOffsetPosition << std::endl;
+            std::cerr << "cChildOffsetOrientation = " << cChildOffsetOrientation << std::endl;
+
+            btTransform cChildOffsetTransform =
+               btTransform(btQuaternion(cChildOffsetOrientation.GetX(),
+                                        cChildOffsetOrientation.GetZ(), 
+                                       -cChildOffsetOrientation.GetY(),
+                                        cChildOffsetOrientation.GetW()),
+                           btVector3(cChildOffsetPosition.GetX(),
+                                     cChildOffsetPosition.GetZ(),
+                                    -cChildOffsetPosition.GetY()));
+
+            cChildOffsetTransform *= cCenterOfMassOffset.inverse();
+
+            //btTransform cParentToChildTransform = cParentOffsetTransform.inverse() * cChildOffsetTransform; // 1
+            //btTransform cParentToChildTransform = cParentOffsetTransform * cChildOffsetTransform.inverse(); // 2
+            //btTransform cParentToChildTransform = cChildOffsetTransform.inverse() * cParentOffsetTransform; // 3
+            btTransform cParentToChildTransform = cChildOffsetTransform * cParentOffsetTransform.inverse(); // 4
             
+            const btVector3& cPosition = cParentToChildTransform.getOrigin();
+            const btQuaternion& cOrientation = cParentToChildTransform.getRotation();
+
+            std::cerr << "cParentToChildTransform.Translation = " << CVector3(cPosition.getX(), -cPosition.getZ(), cPosition.getY()) << std::endl;
+            std::cerr << "cParentToChildTransform.Rotation = " << CQuaternion(cOrientation.getW(),cOrientation.getX(),-cOrientation.getZ(),cOrientation.getY()) << std::endl;
+
+            //btTransform offsetInA(cParentToChildTransform);
+            //btTransform offsetInB; offsetInB.setIdentity();
+            //btQuaternion parentRotToThis = offsetInB.getRotation() * offsetInA.inverse().getRotation();
+
             switch(pc_joint->GetType()) {
             case CJointEntity::EType::FIXED:
-               GetMultiBody().setupFixed(cChildLink.GetAnchor().Index - 2,
+               GetMultiBody().setupSpherical(cChildLink.GetAnchor().Index - 2,
                                          sChildLink.Mass,
                                          sChildLink.Inertia,
                                          cParentLink.GetAnchor().Index - 2,
-                                         cParentLinkOrientation.inverse() * cChildLinkOrientation,
-                                         btVector3(cParentToChildOffset.GetX(),
-                                                   cParentToChildOffset.GetZ(),
-                                                   -cParentToChildOffset.GetY()),  
+                                         cParentToChildTransform.getRotation(),
+                                         cParentToChildTransform.getOrigin(),
                                          btVector3(0,0,0));
                break;
             default:
