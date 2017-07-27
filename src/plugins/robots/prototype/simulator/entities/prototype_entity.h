@@ -16,6 +16,7 @@ namespace argos {
    class CLEDEquippedEntity;
    class CProximitySensorEquippedEntity;
    class CPrototypeEntity;
+   class CLEDMedium;
 }
 
 #include <argos3/core/simulator/entity/composable_entity.h>
@@ -33,10 +34,6 @@ namespace argos {
       CPrototypeEntity();
 
       virtual void Init(TConfigurationNode& t_tree);
-      virtual void Reset();
-      virtual void Destroy();
-
-      virtual void UpdateComponents();
       
       inline CEmbodiedEntity& GetEmbodiedEntity() {
          return *m_pcEmbodiedEntity;
@@ -51,7 +48,7 @@ namespace argos {
       }
 
       inline bool HasControllableEntity() const {
-         return (m_pcLEDEquippedEntity != NULL);
+         return (m_pcControllableEntity != NULL);
       }
 
       inline CControllableEntity& GetControllableEntity() {
@@ -94,8 +91,9 @@ namespace argos {
       CLEDEquippedEntity* m_pcLEDEquippedEntity;
       CProximitySensorEquippedEntity* m_pcProximitySensorEquippedEntity;
 
+      CLEDMedium* m_pcLEDMedium;
+
       CLinkEntity* m_pcReferenceLink;
-      bool m_bHasControllableEntity;
    public: // hack
       std::string m_strReferenceLink;
    };

@@ -21,13 +21,21 @@
     <prototype id="multibody" movable="true" ref="box1">
       <body position="0,0,0" orientation="0,0,0" />
       <links>
-         <link id="box1" geometry="box" size=".1,.1,.1" mass=".05" position="0,0,0" orientation="-30,0,0" />
-         <link id="box2" geometry="box" size=".1,.1,.1" mass=".25" position="0,0,.15" orientation="30,0,0" />
+         <link id="box1" geometry="box" size=".075,.075,.075" mass=".05" position="-.05,0,0" orientation="0,0,0" />
+         <link id="box2" geometry="box" size=".075,.075,.075" mass=".25" position=".05,0,0" orientation="0,0,0" />
       </links>
       <joints>
-         <joint type="fixed" parent="box1" child="box2"/>
-
-      </joints>      
+         <joint id="box1:box2" type="fixed">
+            <parent link="box1" position=".05,0,0" orientation="0,0,0"/>
+            <child link="box2" position="-.05,0,0" orientation="0,0,0"/>
+         </joint>
+      </joints>
+      <devices>
+         <leds medium="leds">
+            <led id="test_led_a" anchor="box2" color="blue" offset="0,0,.075"/>
+            <led id="test_led_b" anchor="box1" color="blue" offset="0,0,.075"/>
+         </leds>
+      </devices>
     </prototype>
 
     <!--prototype id="singlebody" movable="true" ref="box1">
@@ -37,8 +45,11 @@
       </links>
     </prototype-->
 
-    <box id="b0" size=".05,.05,.05" movable="true" mass="0.25">
-      <body position="0,0,.3" orientation="0,0,0" />
+    <box id="b0" size=".05,.05,.05" movable="true" mass="100">
+      <body position=".075,0,.3" orientation="0,0,0" />
+      <leds medium="leds">
+        <led id="yetanotherled" anchor="origin" color="blue" offset="0,0,.1"/>
+      </leds>
     </box>
   </arena>
 
@@ -54,7 +65,9 @@
   <!-- ********* -->
   <!-- * Media * -->
   <!-- ********* -->
-  <media />
+  <media>
+    <led id="leds" index="grid" grid_size="20,20,20" />
+  </media>
 
   <!-- ****************** -->
   <!-- * Visualization * -->

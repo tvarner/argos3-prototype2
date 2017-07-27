@@ -41,6 +41,7 @@ namespace argos {
 
    public:
 
+
       CJointEntity(CComposableEntity* pc_parent);
 
       CJointEntity(CComposableEntity* pc_parent,
@@ -59,12 +60,32 @@ namespace argos {
          return "joint";
       }
 
-      CLinkEntity& GetParentLink();
-      
-      CLinkEntity& GetChildLink();
+      inline const CLinkEntity& GetParentLink() const {
+         return *m_pcParentLink;
+      }
 
-      bool GetDisableLinkedBodyCollisions() const {
-         return m_bDisableCollisions;
+      inline const CVector3& GetParentLinkJointPosition() const {
+         return m_cParentLinkJointPosition;
+      }
+
+      inline const CQuaternion& GetParentLinkJointOrientation() const {
+         return m_cParentLinkJointOrientation;
+      }
+
+      inline const CLinkEntity& GetChildLink() const {
+         return *m_pcChildLink;
+      }
+
+      inline const CVector3& GetChildLinkJointPosition() const {
+         return m_cChildLinkJointPosition;
+      }
+
+      inline const CQuaternion& GetChildLinkJointOrientation() const {
+         return m_cChildLinkJointOrientation;
+      }
+
+      bool IsCollisionEnabled() const {
+         return !m_bDisableCollisions;
       }
 
    private:
@@ -72,6 +93,10 @@ namespace argos {
 
       EType m_eType;
 
+      CVector3 m_cParentLinkJointPosition;
+      CVector3 m_cChildLinkJointPosition; 
+      CQuaternion m_cParentLinkJointOrientation;
+      CQuaternion m_cChildLinkJointOrientation;
       CLinkEntity* m_pcParentLink;
       CLinkEntity* m_pcChildLink;
    };

@@ -39,8 +39,7 @@ namespace argos {
       m_pcJointEquippedEntity(NULL),
       m_pcLEDEquippedEntity(NULL),
       m_pcProximitySensorEquippedEntity(NULL),
-      m_pcReferenceLink(NULL),
-      m_bHasControllableEntity(false) {}
+      m_pcReferenceLink(NULL) {}
 
    /****************************************/
    /****************************************/
@@ -67,6 +66,11 @@ namespace argos {
          m_pcLinkEquippedEntity->Init(GetNode(t_tree, "links"));
          AddComponent(*m_pcLinkEquippedEntity);
 
+
+         /* Init LED equipped entity component */
+         m_pcLEDEquippedEntity = new CLEDEquippedEntity(this);
+         AddComponent(*m_pcLEDEquippedEntity);
+
          /* hack */
          m_pcReferenceLink = &(m_pcLinkEquippedEntity->GetLink(m_strReferenceLink));
 
@@ -80,20 +84,21 @@ namespace argos {
             for(itDevice = itDevice.begin(&GetNode(t_tree, "devices"));
                 itDevice != itDevice.end();
                 ++itDevice) {
-
                if(itDevice->Value() == "rangefinders") {
                   m_pcProximitySensorEquippedEntity = new CProximitySensorEquippedEntity(this);
                   m_pcProximitySensorEquippedEntity->Init(*itDevice);
                   AddComponent(*m_pcProximitySensorEquippedEntity);
                }
                else if(itDevice->Value() == "leds" ) {
-                  m_pcLEDEquippedEntity = new CLEDEquippedEntity(this);
+                  /* Create LED equipped entity
+                   * NOTE: the LEDs are not added to the medium yet
+                   */
                   m_pcLEDEquippedEntity->Init(*itDevice);
-                  /* Add the LEDs to the specified medium */
+                  /* Add the LEDs to the medium */
                   std::string strMedium;
                   GetNodeAttribute(*itDevice, "medium", strMedium);
-                  m_pcLEDEquippedEntity->AddToMedium(CSimulator::GetInstance().GetMedium<CLEDMedium>(strMedium));
-                  AddComponent(*m_pcLEDEquippedEntity);
+                  m_pcLEDMedium = &CSimulator::GetInstance().GetMedium<CLEDMedium>(strMedium);
+                  m_pcLEDEquippedEntity->AddToMedium(*m_pcLEDMedium);
                }
 /*
                else if(itDevice->Value() == "cameras" ) {
@@ -148,36 +153,11 @@ THROW_ARGOSEXCEPTION("Device type \"" << itDevice->Value() << "\" not implemente
    /****************************************/
    /****************************************/
 
-   void CPrototypeEntity::Reset() {
-      /* Reset all components */
-      CComposableEntity::Reset();
-      /* Update components */
-      UpdateComponents();
-   }
-
-   /****************************************/
-   /****************************************/
-
-   void CPrototypeEntity::Destroy() {
-      CComposableEntity::Destroy();
-   }
-
-   /****************************************/
-   /****************************************/
-
-   void CPrototypeEntity::UpdateComponents() {
-      CComposableEntity::UpdateComponents();
-   }
-
-
-   /****************************************/
-   /****************************************/
-
    REGISTER_ENTITY(CPrototypeEntity,
                    "prototype",
-                   "1.0",
+                   "1.1",
                    "Michael Allwright [allsey87@gmail.com]",
-                   "A generic physics engine driven, configurable implementation of a prototype",
+                   "A generic and configurable entity",
                    "[long description]",
                    "Under development"
    );

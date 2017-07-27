@@ -65,6 +65,8 @@ namespace argos {
          CEmbodiedEntity& cBody = GetParent().GetParent().GetComponent<CEmbodiedEntity>("body");
          // create an anchor for each link, the origin has index 0, link 1 has index 1 and so on
          m_psAnchor = &(cBody.AddAnchor(GetId(), cOffsetPosition, cOffsetOrientation));
+         // Enable each anchor so that we can sync the entity's links with a physics engine
+         m_psAnchor->Enable();
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Error while initializing link entity", ex);

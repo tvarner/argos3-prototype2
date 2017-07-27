@@ -109,7 +109,7 @@ namespace argos {
 
       const btTransform& cTransform =
          btTransform(btQuaternion(cOrientation.GetX(),
-                                  cOrientation.GetZ(), 
+                                  cOrientation.GetZ(),
                                  -cOrientation.GetY(),
                                   cOrientation.GetW()),
                      btVector3(cPosition.GetX(),
@@ -131,14 +131,12 @@ namespace argos {
       m_cPrototypeEntity(c_entity),
       m_cLinkEquippedEntity(c_entity.GetLinkEquippedEntity()),
       m_cJointEquippedEntity(c_entity.GetJointEquippedEntity()) {
-
-      LOGERR << "m_cLinkEquippedEntity.GetNumLinks() = " << m_cLinkEquippedEntity.GetNumLinks() << std::endl;
       
       /* use the reference link as the base of the robot */
       CLinkEntity& cBase = c_entity.GetReferenceLink();
       SLink& sBaseLink = AddLink(cBase);
       
-      SetBase(m_cLinkEquippedEntity.GetNumLinks() - 1, sBaseLink.Mass, sBaseLink.Inertia);
+      SetBase(m_cLinkEquippedEntity.GetLinks().size() - 1, sBaseLink.Mass, sBaseLink.Inertia);
 
       RegisterAnchorMethod(cBase.GetAnchor(),
                            &CDynamics3DPrototypeModel::UpdateBaseAnchor);
@@ -150,8 +148,8 @@ namespace argos {
       // (link detached from model)
       // in base class AddLink(parent, joint type, frame info), SetBaseLink
       for(CJointEntity* pc_joint : m_cJointEquippedEntity.GetAllJoints()) {
-         CLinkEntity& cParentLink = pc_joint->GetParentLink();
-         CLinkEntity& cChildLink = pc_joint->GetChildLink();
+         const CLinkEntity& cParentLink = pc_joint->GetParentLink();
+         const CLinkEntity& cChildLink = pc_joint->GetChildLink();
 
          // add check to see if joint/link is already created
          // add check to determine whether the parent exists
@@ -165,6 +163,8 @@ namespace argos {
 
          if(true) { //parent link exists
             const SLink& sChildLink = AddLink(cChildLink);
+            const SLink& sParentLink = m_vecLinks[cParentLink.GetAnchor().Index - 1];
+
             // setup joint
 
             /*
@@ -179,15 +179,11 @@ namespace argos {
             
             CVector3 cParentToChildOffset = cChildLink.GetAnchor().OffsetPosition - cParentLink.GetAnchor().OffsetPosition;
             */
-            const btTransform& cCenterOfMassOffset = btTransform(
-               btQuaternion(0.0f, 0.0f, 0.0f, 1.0f),
-               btVector3(0.0f, -0.1 * 0.5f, 0.0f));
-
 
             // CALCULATE THE TRANSLATION AND ROTATION FROM THE PARENT COM TO THE CHILD COM (AKA THE JOINT FRAME)
 
-            const CVector3& cParentOffsetPosition = cParentLink.GetAnchor().OffsetPosition;
-            const CQuaternion& cParentOffsetOrientation = cParentLink.GetAnchor().OffsetOrientation;
+            const CVector3& cParentOffsetPosition = pc_joint->GetParentLinkJointPosition();
+            const CQuaternion& cParentOffsetOrientation = pc_joint->GetParentLinkJointOrientation();
             std::cerr << "cParentOffsetPosition = " << cParentOffsetPosition << std::endl;
             std::cerr << "cParentOffsetOrientation = " << cParentOffsetOrientation << std::endl;
 
@@ -200,10 +196,10 @@ namespace argos {
                                      cParentOffsetPosition.GetZ(),
                                     -cParentOffsetPosition.GetY()));
 
-            cParentOffsetTransform *= cCenterOfMassOffset.inverse();
+            cParentOffsetTransform *= (sParentLink.CenterOfMassOffset).inverse();
 
-            const CVector3& cChildOffsetPosition = cChildLink.GetAnchor().OffsetPosition;
-            const CQuaternion& cChildOffsetOrientation = cChildLink.GetAnchor().OffsetOrientation;
+            const CVector3& cChildOffsetPosition = pc_joint->GetChildLinkJointPosition();
+            const CQuaternion& cChildOffsetOrientation = pc_joint->GetChildLinkJointOrientation();
             std::cerr << "cChildOffsetPosition = " << cChildOffsetPosition << std::endl;
             std::cerr << "cChildOffsetOrientation = " << cChildOffsetOrientation << std::endl;
 
@@ -216,7 +212,7 @@ namespace argos {
                                      cChildOffsetPosition.GetZ(),
                                     -cChildOffsetPosition.GetY()));
 
-            cChildOffsetTransform *= cCenterOfMassOffset.inverse();
+            cChildOffsetTransform *= (sChildLink.CenterOfMassOffset).inverse();
 
             //btTransform cParentToChildTransform = cParentOffsetTransform.inverse() * cChildOffsetTransform; // 1
             //btTransform cParentToChildTransform = cParentOffsetTransform * cChildOffsetTransform.inverse(); // 2
@@ -231,7 +227,7 @@ namespace argos {
 
             //btTransform offsetInA(cParentToChildTransform);
             //btTransform offsetInB; offsetInB.setIdentity();
-            //btQuaternion parentRotToThis = offsetInB.getRotation() * offsetInA.inverse().getRotation();
+            btQuaternion parentRotToThis = cChildOffsetTransform.getRotation() * cParentOffsetTransform.inverse().getRotation();
 
             switch(pc_joint->GetType()) {
             case CJointEntity::EType::FIXED:
@@ -239,9 +235,9 @@ namespace argos {
                                          sChildLink.Mass,
                                          sChildLink.Inertia,
                                          cParentLink.GetAnchor().Index - 2,
-                                         cParentToChildTransform.getRotation(),
-                                         cParentToChildTransform.getOrigin(),
-                                         btVector3(0,0,0));
+                                         parentRotToThis,
+                                         cParentOffsetTransform.getOrigin(),
+                                         -cChildOffsetTransform.getOrigin());
                break;
             default:
                THROW_ARGOSEXCEPTION("Joint type not implemented");
@@ -250,7 +246,6 @@ namespace argos {
 
             RegisterAnchorMethod(cChildLink.GetAnchor(),
                                  &CDynamics3DPrototypeModel::UpdateLinkAnchor);
-            cChildLink.GetAnchor().Enable();
          }    
       }
       

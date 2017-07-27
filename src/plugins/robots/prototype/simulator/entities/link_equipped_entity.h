@@ -32,11 +32,7 @@ namespace argos {
                           const std::string& str_id);
 
       virtual void Init(TConfigurationNode& t_tree);
-      virtual void Reset();
-      virtual void Update() {}
-
-      //CLinkEntity& GetLink(UInt32 un_index);
-
+ 
       CLinkEntity& GetLink(const std::string& str_link_id) {
          return *m_tLinks[str_link_id];
       }
@@ -45,22 +41,13 @@ namespace argos {
          return *m_pcBase;
       }
 
-      inline CLinkEntity::TMap& GetAllLinks() {
+      inline CLinkEntity::TMap& GetLinks() {
          return m_tLinks;
       }
-
-      inline size_t GetNumLinks() {
-         return m_tLinks.size();
-      }
-
 
       virtual std::string GetTypeDescription() const {
          return "links";
       }
-
-   protected:
-
-      virtual void UpdateComponents();
 
    protected:
       // todo, why is this protected? use link 0 as base link

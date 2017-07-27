@@ -15,6 +15,8 @@ namespace argos {
 #include <argos3/core/utility/math/quaternion.h>
 #include <argos3/core/simulator/entity/embodied_entity.h>
 
+#include <unordered_map>
+
 namespace argos {
 
    // the advantage of using a positional entity is that we cache the location for a visualization plugin
@@ -27,14 +29,14 @@ namespace argos {
 
       ENABLE_VTABLE();
 
-      typedef std::map<std::string, CLinkEntity*> TMap;
+      using TMap = std::unordered_map<std::string, CLinkEntity*>;
 
    public:
-		enum EGeometry {
-			CYLINDER,
-			BOX,
-			SPHERE,
-		};
+      enum EGeometry {
+         CYLINDER,
+         BOX,
+         SPHERE,
+      };
 
    public:
 

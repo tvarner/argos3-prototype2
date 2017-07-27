@@ -36,7 +36,7 @@ namespace argos {
             
             CLinkEntity* pcLinkEntity = new CLinkEntity(this);
             pcLinkEntity->Init(*itLink);
-            AddComponent(*pcLinkEntity);
+            AddComponent(*pcLinkEntity);            
             m_tLinks[pcLinkEntity->GetId()] = pcLinkEntity;
          }
       }
@@ -44,22 +44,6 @@ namespace argos {
          THROW_ARGOSEXCEPTION_NESTED("Failed to initialize link equipped entity \"" << GetId() << "\".", ex);
       }
    }
-
-   /****************************************/
-   /****************************************/
-
-   void CLinkEquippedEntity::Reset() {
-      for(CLinkEntity::TMap::iterator it = m_tLinks.begin();
-          it != m_tLinks.end();
-          ++it) {
-         it->second->Reset();
-      }
-   }
-
-   /****************************************/
-   /****************************************/
-
-   void CLinkEquippedEntity::UpdateComponents() {}
 
    /****************************************/
    /****************************************/
