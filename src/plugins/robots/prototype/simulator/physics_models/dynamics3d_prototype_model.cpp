@@ -86,12 +86,18 @@ namespace argos {
       /* request collision shape */
       btCollisionShape* pcShape = NULL;
       switch(c_link.GetGeometry()) {
-         case CLinkEntity::EGeometry::BOX:
-            pcShape = CDynamics3DShapeManager::RequestBox(cHalfExtents);
-            break;
-         default:
-            THROW_ARGOSEXCEPTION("Not implemented");
-            break;
+      case CLinkEntity::EGeometry::BOX:
+         pcShape = CDynamics3DShapeManager::RequestBox(cHalfExtents);
+         break;
+      case CLinkEntity::EGeometry::CYLINDER:
+         pcShape = CDynamics3DShapeManager::RequestCylinder(cHalfExtents);
+         break;
+      case CLinkEntity::EGeometry::SPHERE:
+         pcShape = CDynamics3DShapeManager::RequestSphere(cHalfExtents.getX());
+         break;          
+      default:
+         THROW_ARGOSEXCEPTION("Geometry not implemented");
+         break;
       }
       /* calculate inertia */
       btScalar fMass = c_link.GetMass();
@@ -231,7 +237,7 @@ namespace argos {
 
             switch(pc_joint->GetType()) {
             case CJointEntity::EType::FIXED:
-               GetMultiBody().setupSpherical(cChildLink.GetAnchor().Index - 2,
+               GetMultiBody().setupFixed(cChildLink.GetAnchor().Index - 2,
                                          sChildLink.Mass,
                                          sChildLink.Inertia,
                                          cParentLink.GetAnchor().Index - 2,

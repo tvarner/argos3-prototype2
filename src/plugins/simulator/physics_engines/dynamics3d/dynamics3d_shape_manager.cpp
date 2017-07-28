@@ -14,18 +14,17 @@ namespace argos {
    
    btBoxShape* CDynamics3DShapeManager::RequestBox(const btVector3& c_half_extents) {
       std::vector<SBoxResource>::iterator itBoxResource;      
-      for(itBoxResource = m_vecBoxResources.begin();
-          itBoxResource != m_vecBoxResources.end();
+      for(itBoxResource = std::begin(m_vecBoxResources);
+          itBoxResource != std::end(m_vecBoxResources);
           ++itBoxResource) {
-         if(itBoxResource->m_cHalfExtents == c_half_extents) break;
+         if(itBoxResource->HalfExtents == c_half_extents) break;
       }      
       // if it doesn't exist, create a new one
-      if(itBoxResource == m_vecBoxResources.end()) {
-         itBoxResource = m_vecBoxResources.insert(itBoxResource, 
-                                            SBoxResource(c_half_extents, new btBoxShape(c_half_extents)));
+      if(itBoxResource == std::end(m_vecBoxResources)) {
+         itBoxResource = m_vecBoxResources.emplace(itBoxResource, c_half_extents);
       }
-      itBoxResource->m_unInUseCount++;
-      return itBoxResource->m_cShape;
+      itBoxResource->InUseCount++;
+      return (itBoxResource->Shape);
    }
 
    /****************************************/
@@ -33,18 +32,17 @@ namespace argos {
 
    void CDynamics3DShapeManager::ReleaseBox(const btBoxShape* pc_release) {
       std::vector<SBoxResource>::iterator itBoxResource;      
-      for(itBoxResource = m_vecBoxResources.begin();
-          itBoxResource != m_vecBoxResources.end();
+      for(itBoxResource = std::begin(m_vecBoxResources);
+          itBoxResource != std::end(m_vecBoxResources);
           ++itBoxResource) {
-         if(itBoxResource->m_cShape == pc_release) break;
+         if(itBoxResource->Shape == pc_release) break;
       }
       // if it doesn't exist, throw an exception
-      if(itBoxResource == m_vecBoxResources.end()) {
-         THROW_ARGOSEXCEPTION("Box not found");
+      if(itBoxResource == std::end(m_vecBoxResources)) {
+         THROW_ARGOSEXCEPTION("Box resource not found");
       }
-      itBoxResource->m_unInUseCount--;
-      if(itBoxResource->m_unInUseCount == 0) {
-         delete itBoxResource->m_cShape;
+      itBoxResource->InUseCount--;
+      if(itBoxResource->InUseCount == 0) {
          m_vecBoxResources.erase(itBoxResource);
       }
    }
@@ -52,11 +50,112 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   CDynamics3DShapeManager::SBoxResource::SBoxResource(const btVector3& c_half_extents,
-                                                       btBoxShape* c_shape) : 
-      m_cHalfExtents(c_half_extents),
-      m_cShape(c_shape),
-      m_unInUseCount(0) {}
+   CDynamics3DShapeManager::SBoxResource::SBoxResource(const btVector3& c_half_extents) : 
+      HalfExtents(c_half_extents),
+      Shape(new btBoxShape(c_half_extents)),
+      InUseCount(0) {}
+
+   /****************************************/
+   /****************************************/
+
+      std::vector<CDynamics3DShapeManager::SCylinderResource> CDynamics3DShapeManager::m_vecCylinderResources;
+
+   /****************************************/
+   /****************************************/
+   
+   btCylinderShape* CDynamics3DShapeManager::RequestCylinder(const btVector3& c_half_extents) {
+      std::vector<SCylinderResource>::iterator itCylinderResource;      
+      for(itCylinderResource = std::begin(m_vecCylinderResources);
+          itCylinderResource != std::end(m_vecCylinderResources);
+          ++itCylinderResource) {
+         if(itCylinderResource->HalfExtents == c_half_extents) break;
+      }      
+      // if it doesn't exist, create a new one
+      if(itCylinderResource == std::end(m_vecCylinderResources)) {
+         itCylinderResource = m_vecCylinderResources.emplace(itCylinderResource, c_half_extents);
+      }
+      itCylinderResource->InUseCount++;
+      return (itCylinderResource->Shape);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics3DShapeManager::ReleaseCylinder(const btCylinderShape* pc_release) {
+      std::vector<SCylinderResource>::iterator itCylinderResource;      
+      for(itCylinderResource = std::begin(m_vecCylinderResources);
+          itCylinderResource != std::end(m_vecCylinderResources);
+          ++itCylinderResource) {
+         if(itCylinderResource->Shape == pc_release) break;
+      }
+      // if it doesn't exist, throw an exception
+      if(itCylinderResource == std::end(m_vecCylinderResources)) {
+         THROW_ARGOSEXCEPTION("Cylinder resource not found");
+      }
+      itCylinderResource->InUseCount--;
+      if(itCylinderResource->InUseCount == 0) {
+         m_vecCylinderResources.erase(itCylinderResource);
+      }
+   }
+
+   /****************************************/
+   /****************************************/
+
+   CDynamics3DShapeManager::SCylinderResource::SCylinderResource(const btVector3& c_half_extents) : 
+      HalfExtents(c_half_extents),
+      Shape(new btCylinderShape(c_half_extents)),
+      InUseCount(0) {}
+
+   /****************************************/
+   /****************************************/
+
+   std::vector<CDynamics3DShapeManager::SSphereResource> CDynamics3DShapeManager::m_vecSphereResources;
+
+   /****************************************/
+   /****************************************/
+   
+   btSphereShape* CDynamics3DShapeManager::RequestSphere(btScalar f_radius) {
+      std::vector<SSphereResource>::iterator itSphereResource;      
+      for(itSphereResource = std::begin(m_vecSphereResources);
+          itSphereResource != std::end(m_vecSphereResources);
+          ++itSphereResource) {
+         if(itSphereResource->Radius == f_radius) break;
+      }      
+      // if it doesn't exist, create a new one
+      if(itSphereResource == std::end(m_vecSphereResources)) {
+         itSphereResource = m_vecSphereResources.emplace(itSphereResource, f_radius);
+      }
+      itSphereResource->InUseCount++;
+      return (itSphereResource->Shape);
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CDynamics3DShapeManager::ReleaseSphere(const btSphereShape* pc_release) {
+      std::vector<SSphereResource>::iterator itSphereResource;      
+      for(itSphereResource = std::begin(m_vecSphereResources);
+          itSphereResource != std::end(m_vecSphereResources);
+          ++itSphereResource) {
+         if(itSphereResource->Shape == pc_release) break;
+      }
+      // if it doesn't exist, throw an exception
+      if(itSphereResource == std::end(m_vecSphereResources)) {
+         THROW_ARGOSEXCEPTION("Sphere resource not found");
+      }
+      itSphereResource->InUseCount--;
+      if(itSphereResource->InUseCount == 0) {
+         m_vecSphereResources.erase(itSphereResource);
+      }
+   }
+
+   /****************************************/
+   /****************************************/
+
+   CDynamics3DShapeManager::SSphereResource::SSphereResource(btScalar f_radius) : 
+      Radius(f_radius),
+      Shape(new btSphereShape(f_radius)),
+      InUseCount(0) {}
 
    /****************************************/
    /****************************************/
