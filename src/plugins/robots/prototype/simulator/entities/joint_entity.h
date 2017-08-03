@@ -51,10 +51,6 @@ namespace argos {
       virtual ~CJointEntity() {}
 
       virtual void Init(TConfigurationNode& t_tree);
-      virtual void Reset();
-      virtual void Destroy();
-
-      virtual void UpdateComponents();
 
       virtual std::string GetTypeDescription() const {
          return "joint";
@@ -94,7 +90,7 @@ namespace argos {
       EType m_eType;
 
       CVector3 m_cParentLinkJointPosition;
-      CVector3 m_cChildLinkJointPosition; 
+      CVector3 m_cChildLinkJointPosition;
       CQuaternion m_cParentLinkJointOrientation;
       CQuaternion m_cChildLinkJointOrientation;
       CLinkEntity* m_pcParentLink;

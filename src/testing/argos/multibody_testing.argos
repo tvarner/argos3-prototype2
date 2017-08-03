@@ -18,41 +18,39 @@
   <!-- *********************** -->
   <!-- Note: rotations are specified and performed in ZYX order (opposite of ARGoS1) -->
   <arena size="2, 2, 2" center="0, 0, 1">
-    <prototype id="multibody" movable="true" ref="link_0">
+    <prototype id="multibody" movable="true" ref="box0">
       <body position="0,0,0" orientation="0,0,0" />
       <links>
-         <link geometry="box" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0" orientation="0,0,0" />
-         <link geometry="cylinder" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.1" orientation="0,0,0" />
-         <link geometry="sphere" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.2" orientation="0,0,0" />
+         <link id="box0" geometry="box" radius="0.0375" height=".075" size=".075,.075,.075" mass="5.05" position="0,0,0" orientation="0,0,0" />
+         <link id="cylinder0" geometry="cylinder" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.1" orientation="0,0,0" />
+         <link id="sphere0" geometry="sphere" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.2" orientation="0,0,0" />
+         <link id="sphere1" geometry="sphere" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0.1,0,0.1" orientation="0,180,0" />
       </links>
       <joints>
          <joint type="fixed">
-            <parent link="link_0" position="0,0,.1" orientation="0,0,0"/>
-            <child link="link_1" position="0,0,0" orientation="0,0,0"/>
+            <parent link="box0" position="0,0,.1" orientation="0,0,0"/>
+            <child link="cylinder0" position="0,0,0" orientation="0,0,0"/>
          </joint>
-         <joint type="fixed">
-            <parent link="link_1" position="0,0,.1" orientation="0,0,0"/>
-            <child link="link_2" position="0,0,0" orientation="0,0,0"/>
+         <joint type="spherical">
+            <parent link="cylinder0" position="0,0,.1375" orientation="0,0,0"/>
+            <child link="sphere0" position="0,0,0.0375" orientation="0,0,0"/>
+         </joint>
+         <joint type="spherical">
+            <parent link="cylinder0" position="0.1,0,-0.0375" orientation="0,0,0"/>
+            <child link="sphere1" position="0,0,0.0375" orientation="0,0,0"/>
          </joint>
       </joints>
       <devices>
          <leds medium="leds">
-            <led id="test_led_a" anchor="link_0" color="blue" offset="0,0,.075"/>
-            <led id="test_led_b" anchor="link_1" color="blue" offset="0,0,.075"/>
-            <led id="test_led_c" anchor="link_2" color="blue" offset="0,0,.075"/>
+            <led id="test_led_a" anchor="box0" color="blue" offset="0,0,.075"/>
+            <led id="test_led_b" anchor="cylinder0" color="blue" offset="0,0,.075"/>
+            <led id="test_led_c" anchor="sphere0" color="blue" offset="0,0,.075"/>
          </leds>
       </devices>
     </prototype>
 
-    <!--prototype id="singlebody" movable="true" ref="box1">
-      <body position="0.1,0,0.5" orientation="0,0,0" />
-      <links>
-         <link id="box1" geometry="box" size=".1,.1,.1" mass=".25" position="0,0,0" orientation="0,0,0" />
-      </links>
-    </prototype-->
-
     <box id="b0" size=".05,.05,.05" movable="true" mass="5">
-      <body position=".01,0.01,.3" orientation="0,0,0" />
+      <body position=".035,0,.3" orientation="0,0,0" />
       <leds medium="leds">
         <led id="yetanotherled" anchor="origin" color="blue" offset="0,0,.05"/>
       </leds>

@@ -22,6 +22,12 @@ namespace argos {
       return stream;
    }
 
+   std::ostream& operator<<(std::ostream& stream, const btTransform& tr) {
+      stream << "tr: " << tr.getOrigin().getX() << ", " << tr.getOrigin().getY() << ", " << tr.getOrigin().getZ() << std::endl;
+      return stream;
+   }
+
+
    /****************************************/
    /****************************************/
 
@@ -202,7 +208,9 @@ namespace argos {
                                      cParentOffsetPosition.GetZ(),
                                     -cParentOffsetPosition.GetY()));
 
-            cParentOffsetTransform *= (sParentLink.CenterOfMassOffset).inverse();
+            std::cerr << "pr.b: " << cParentOffsetTransform;
+            cParentOffsetTransform *= (sParentLink.CenterOfMassOffset);
+            std::cerr << "pr.a: " << cParentOffsetTransform;
 
             const CVector3& cChildOffsetPosition = pc_joint->GetChildLinkJointPosition();
             const CQuaternion& cChildOffsetOrientation = pc_joint->GetChildLinkJointOrientation();
@@ -218,21 +226,11 @@ namespace argos {
                                      cChildOffsetPosition.GetZ(),
                                     -cChildOffsetPosition.GetY()));
 
-            cChildOffsetTransform *= (sChildLink.CenterOfMassOffset).inverse();
+            std::cerr << "ch.b: " << cChildOffsetTransform;
+            std::cerr << "ch.como: " << sChildLink.CenterOfMassOffset;
+            cChildOffsetTransform = cChildOffsetTransform * (sChildLink.CenterOfMassOffset);
+            std::cerr << "ch.a: " << cChildOffsetTransform;
 
-            //btTransform cParentToChildTransform = cParentOffsetTransform.inverse() * cChildOffsetTransform; // 1
-            //btTransform cParentToChildTransform = cParentOffsetTransform * cChildOffsetTransform.inverse(); // 2
-            //btTransform cParentToChildTransform = cChildOffsetTransform.inverse() * cParentOffsetTransform; // 3
-            btTransform cParentToChildTransform = cChildOffsetTransform * cParentOffsetTransform.inverse(); // 4
-            
-            const btVector3& cPosition = cParentToChildTransform.getOrigin();
-            const btQuaternion& cOrientation = cParentToChildTransform.getRotation();
-
-            std::cerr << "cParentToChildTransform.Translation = " << CVector3(cPosition.getX(), -cPosition.getZ(), cPosition.getY()) << std::endl;
-            std::cerr << "cParentToChildTransform.Rotation = " << CQuaternion(cOrientation.getW(),cOrientation.getX(),-cOrientation.getZ(),cOrientation.getY()) << std::endl;
-
-            //btTransform offsetInA(cParentToChildTransform);
-            //btTransform offsetInB; offsetInB.setIdentity();
             btQuaternion parentRotToThis = cChildOffsetTransform.getRotation() * cParentOffsetTransform.inverse().getRotation();
 
             switch(pc_joint->GetType()) {
@@ -244,6 +242,15 @@ namespace argos {
                                          parentRotToThis,
                                          cParentOffsetTransform.getOrigin(),
                                          -cChildOffsetTransform.getOrigin());
+               break;
+            case CJointEntity::EType::SPHERICAL:
+               GetMultiBody().setupSpherical(cChildLink.GetAnchor().Index - 2,
+                                             sChildLink.Mass,
+                                             sChildLink.Inertia,
+                                             cParentLink.GetAnchor().Index - 2,
+                                             parentRotToThis,
+                                             cParentOffsetTransform.getOrigin(),
+                                             -cChildOffsetTransform.getOrigin());
                break;
             default:
                THROW_ARGOSEXCEPTION("Joint type not implemented");
