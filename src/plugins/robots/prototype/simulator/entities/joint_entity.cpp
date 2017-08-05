@@ -31,18 +31,6 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   /*
-      <joint id="box1:box2" type="fixed">
-         <parent link="box1" position="0,0,.1" orientation="0,0,0"/>
-         <child link="box2" position="0,0,0" orientation="0,0,0"/>
-      </joint>
-
-      CVector3 m_cParentLinkJointOffsetPosition;
-      CVector3 m_cChildLinkJointOffsetPosition; 
-      CQuaternion m_cParentLinkJointOffsetOrientation;
-      CQuaternion m_cChildLinkJointOffsetOrientation;
-   */
-
    void CJointEntity::Init(TConfigurationNode& t_tree) {
       try {
          /* Init parent */
@@ -95,26 +83,6 @@ namespace argos {
          THROW_ARGOSEXCEPTION_NESTED("Error while initializing joint entity", ex);
       }
    }
-
-   /****************************************/
-   /****************************************/
-
-
-   void CJointEntity::Reset() {
-      CComposableEntity::Reset();
-   }
-
-   /****************************************/
-   /****************************************/
-
-   void CJointEntity::Destroy() {
-      CComposableEntity::Destroy();
-   }
-
-   /****************************************/
-   /****************************************/
-
-   void CJointEntity::UpdateComponents() {}
 
    /****************************************/
    /****************************************/
