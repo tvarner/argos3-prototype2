@@ -21,9 +21,9 @@
     <prototype id="multibody" movable="true" ref="link_0">
       <body position="0,0,0" orientation="0,0,0" />
       <links>
-         <link geometry="box" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0" orientation="0,0,0" />
-         <link geometry="cylinder" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.1" orientation="0,0,0" />
-         <link geometry="sphere" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.2" orientation="0,0,0" />
+         <link id="link_0" geometry="box" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0" orientation="0,0,0" />
+         <link id="link_1" geometry="cylinder" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.1" orientation="0,0,0" />
+         <link id="link_2" geometry="sphere" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.2" orientation="0,0,0" />
       </links>
       <joints>
          <joint type="fixed">

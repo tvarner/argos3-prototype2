@@ -62,7 +62,7 @@ namespace argos {
          /* hack */
          GetNodeAttribute(t_tree, "ref", m_strReferenceLink);
 
-         m_pcLinkEquippedEntity = new CLinkEquippedEntity(this);
+         m_pcLinkEquippedEntity = new CLinkEquippedEntity(this, 'links');
          m_pcLinkEquippedEntity->Init(GetNode(t_tree, "links"));
          AddComponent(*m_pcLinkEquippedEntity);
 
@@ -74,11 +74,19 @@ namespace argos {
          /* hack */
          m_pcReferenceLink = &(m_pcLinkEquippedEntity->GetLink(m_strReferenceLink));
 
-         m_pcJointEquippedEntity = new CJointEquippedEntity(this);
+         m_pcJointEquippedEntity = new CJointEquippedEntity(this, 'joints');
          AddComponent(*m_pcJointEquippedEntity);
          if(NodeExists(t_tree, "joints")) {
             m_pcJointEquippedEntity->Init(GetNode(t_tree, "joints"));
          }
+
+         // initialize joint actuators and sensors
+         m_pcJointActuators = new CPrototypeJointsDefaultActuator();
+         m_pcJointActuators->SetRobot(this);
+
+         m_pcJointSensors = new CPrototypeJointsDefaultSensor();
+         m_pcJointSensors->SetRobot(this);
+
          if(NodeExists(t_tree, "devices")) {
             TConfigurationNodeIterator itDevice;
             for(itDevice = itDevice.begin(&GetNode(t_tree, "devices"));

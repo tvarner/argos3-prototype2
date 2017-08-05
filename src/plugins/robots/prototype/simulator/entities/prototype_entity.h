@@ -47,6 +47,14 @@ namespace argos {
          return *m_pcJointEquippedEntity;
       }
 
+      inline CPrototypeJointsDefaultActuator GetJointActuators() { 
+        return *m_pcJointActuators;
+      }
+
+      inline CPrototypeJointsDefaultSensor GetJointSensors() { 
+        return *m_pcJointSensors;
+      }
+
       inline bool HasControllableEntity() const {
          return (m_pcControllableEntity != NULL);
       }
@@ -90,6 +98,8 @@ namespace argos {
       CJointEquippedEntity* m_pcJointEquippedEntity;
       CLEDEquippedEntity* m_pcLEDEquippedEntity;
       CProximitySensorEquippedEntity* m_pcProximitySensorEquippedEntity;
+      CPrototypeJointsDefaultActuator* m_pcJointActuators;
+      CPrototypeJointsDefaultSensor* m_pcJointSensors;
 
       CLEDMedium* m_pcLEDMedium;
 

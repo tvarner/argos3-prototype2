@@ -125,11 +125,11 @@ namespace argos {
       if(m_mapAnchors.count(str_id) > 0 ) {
          THROW_ARGOSEXCEPTION("Embodied entity \"" << GetContext() + GetId() << "\" already has an anchor with id " << str_id);
       }
-      /* Calculate anchor position */
+      /* Calculate anchor position from origin anchor position*/
       CVector3 cPos = c_offset_position;
       cPos.Rotate(m_psOriginAnchor->Orientation);
       cPos += m_psOriginAnchor->Position;
-      /* Calculate anchor orientation */
+      /* Calculate anchor orientation from origin anchor orientation */
       CQuaternion cOrient = m_psOriginAnchor->Orientation * c_offset_orientation;
       /* Create anchor */
       SAnchor* psAnchor = new SAnchor(*this,

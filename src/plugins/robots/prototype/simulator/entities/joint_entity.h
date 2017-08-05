@@ -84,6 +84,64 @@ namespace argos {
          return m_cChildLinkJointOrientation;
       }
 
+      inline void SetActuatorParametersLinearX(Real target_velocity, bool enabled) {
+         if (enabled == true) { 
+            m_cLinearVelocity.SetX(target_velocity);
+         } else { 
+            m_cLinearVelocity.SetX(0);
+         }
+      }
+
+      inline void SetActuatorParametersLinearY(Real target_velocity, bool enabled) {
+         if (enabled == true) { 
+            m_cLinearVelocity.SetY(target_velocity);
+         } else { 
+            m_cLinearVelocity.SetY(0);
+         }
+      }
+
+      inline void SetActuatorParametersLinearZ(Real target_velocity, bool enabled) {
+         if (enabled == true) { 
+            m_cLinearVelocity.SetZ(target_velocity);
+         } else { 
+            m_cLinearVelocity.SetZ(0);
+         }
+      }
+
+      inline void SetActuatorParametersAngularX(Real target_velocity, bool enabled) {
+         if (enabled == true) { 
+            m_cAngularVelocity.SetX(target_velocity);
+         } else { 
+            m_cAngularVelocity.SetX(0);
+         }
+      }
+
+      inline void SetActuatorParametersAngularY(Real target_velocity, bool enabled) {
+         if (enabled == true) { 
+            m_cAngularVelocity.SetY(target_velocity);
+         } else { 
+            m_cAngularVelocity.SetY(0);
+         }
+      }
+
+      inline void SetActuatorParametersAngularZ(Real target_velocity, bool enabled) {
+         if (enabled == true) { 
+            m_cAngularVelocity.SetZ(target_velocity);
+         } else { 
+            m_cAngularVelocity.SetZ(0);
+         }
+      }
+ 
+      // @todo: derive this from child link instead of return member
+      inline CVector3 GetJointRotation() const { 
+         return m_cChildLinkJointOrientation;
+      }
+
+      // @todo: derive this from child link instead of return member
+      inline CVector3 GetJointTranslation() const { 
+         return m_cChildLinkJointPosition;
+      }
+ 
       bool IsCollisionEnabled() const {
          return !m_bDisableCollisions;
       }
@@ -99,6 +157,8 @@ namespace argos {
       CQuaternion m_cChildLinkJointOrientation;
       CLinkEntity* m_pcParentLink;
       CLinkEntity* m_pcChildLink;
+      CVector3 m_cLinearVelocity; 
+      CVector3 m_cAngularVelocity;
    };
 
 }

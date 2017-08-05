@@ -27,7 +27,8 @@ namespace argos {
    void CJointEquippedEntity::Init(TConfigurationNode& t_tree) {
       try {
          /* Init parent */
-         CComposableEntity::Init(t_tree);
+          /* the second constructor is called so no need to call init on composable entity */
+         // CComposableEntity::Init(t_tree);
 
          /* Get a reference to the body equipped entity */
          //CBodyEquippedEntity& cBodyEquippedEntity = GetParent().GetComponent<CBodyEquippedEntity>("bodies");

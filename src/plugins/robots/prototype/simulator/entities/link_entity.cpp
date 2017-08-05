@@ -62,6 +62,7 @@ namespace argos {
          // TODO do we need to store a pointer to the anchor in this class? Yes. Since we don't use the positional entity, the anchor contains the position and orientation of this link
          // TODO if we merge this functionality into link equipped entity and create a struct, we can just use it's constructor to init the reference to the anchor
          /* Get a link to the emboddied entity */
+         
          CEmbodiedEntity& cBody = GetParent().GetParent().GetComponent<CEmbodiedEntity>("body");
          // create an anchor for each link, the origin has index 0, link 1 has index 1 and so on
          m_psAnchor = &(cBody.AddAnchor(GetId(), cOffsetPosition, cOffsetOrientation));

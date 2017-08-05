@@ -27,7 +27,8 @@ namespace argos {
    void CLinkEquippedEntity::Init(TConfigurationNode& t_tree) {
       try {
          /* Init parent */
-         CComposableEntity::Init(t_tree);
+          /* the second constructor is called so no need to call init on composable entity */
+         // CComposableEntity::Init(t_tree);
 
          TConfigurationNodeIterator itLink("link");
          for(itLink = itLink.begin(&t_tree);

@@ -88,6 +88,8 @@ namespace argos {
          m_pcChildLink = &(cLinkEquippedEntity.GetLink(strJointChildLink));
          GetNodeAttributeOrDefault(tJointChildNode, "position", m_cChildLinkJointPosition, m_cChildLinkJointPosition);
          GetNodeAttributeOrDefault(tJointChildNode, "orientation", m_cChildLinkJointOrientation, m_cChildLinkJointOrientation);
+
+         
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Error while initializing joint entity", ex);
