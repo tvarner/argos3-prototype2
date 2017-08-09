@@ -88,8 +88,12 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   void CPointMass3DProtoTypeModel::UpdateOriginAnchor(SAnchor& s_anchor) {
-      // No need for this since updating links and joints in UpdateFromEntityStatus
+   void CPointMass3DProtoTypeModel::UpdateBaseAnchor(SAnchor& s_anchor) {
+
+   }
+
+   void CPointMass3DProtoTypeModel::UpdateLinkAnchor(SAnchor& s_anchor) {
+
    }
 
    /****************************************/
