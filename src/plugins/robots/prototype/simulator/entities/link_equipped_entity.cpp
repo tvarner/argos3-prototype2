@@ -8,6 +8,18 @@
 
 namespace argos {
 
+   SLink::SLink(const std::string& str_link_id,
+               const EGeometry e_geometry,
+               const Real f_mass,
+               const CVector3 c_extents,
+               const SAnchor& ps_Anchor) :
+      m_strId(str_link_id),
+      m_eGeometry(e_geometry),
+      m_fMass(f_mass),
+      m_cExtents(c_extents),
+      m_psAnchor(ps_anchor) {
+   }
+
    /****************************************/
    /****************************************/
 
@@ -35,10 +47,74 @@ namespace argos {
              itLink != itLink.end();
              ++itLink) {
             
-            CLinkEntity* pcLinkEntity = new CLinkEntity(this);
-            pcLinkEntity->Init(*itLink);
-            AddComponent(*pcLinkEntity);            
-            m_tLinks[pcLinkEntity->GetId()] = pcLinkEntity;
+            // get id
+            std::string strLinkId;
+            GetNodeAttribute(*itLink, 'id', strLinkId);
+
+            // get mass
+            Real fMass;
+            GetNodeAttribute(*itLink, 'mass', fMass);
+
+            // get offset position
+            CVector3 cOffsetPosition;
+            GetNodeAttributeOrDefault(*itLink, "position", cOffsetPosition, cOffsetPosition);
+
+            // get orientation of the link wrt. the body
+            CQuaternion cOffsetOrientation;
+            GetNodeAttributeOrDefault(*itLink, "orientation", cOffsetOrientation, cOffsetOrientation);
+
+            // get prototype embodied entity
+            CEmbodiedEntity& cBody = GetParent().GetComponent<CEmbodiedEntity>("body");
+            
+            // create an anchor for each link, the origin has index 0, link 1 has index 1 and so on
+            SAnchor& psAnchor = &(cBody.AddAnchor(strLinkId, cOffsetPosition, cOffsetOrientation));
+            
+            // Enable each anchor so that we can sync the entity's links with a physics engine
+            psAnchor->Enable();
+
+            /* Parse link geometry and dimensions */
+            EGeometry eGeometry;
+            CVector3 cExtents;
+            GetNodeAttribute(*itLink, "geometry", strLinkGeometry);
+            if(strLinkGeometry == "box") {
+               eGeometry = BOX; 
+               GetNodeAttribute(*itLink, "size", cExtents);
+            } else if(strLinkGeometry == "cylinder") {
+               eGeometry = CYLINDER;
+               Real fRadius;
+               Real fHeight;
+               GetNodeAttribute(*itLink, "height", fHeight);
+               GetNodeAttribute(*itLink, "radius", fRadius);
+               cExtents.Set(fRadius * 2.0f, fRadius * 2.0f, fHeight);
+            } else if(strLinkGeometry == "sphere") {
+               eGeometry = SPHERE;
+               Real fRadius;
+               GetNodeAttribute(*itLink, "radius", fRadius);
+               cExtents.Set(fRadius * 2.0f, fRadius * 2.0f, fRadius * 2.0f);
+            } else {
+               /* unknown geometry requested */
+               THROW_ARGOSEXCEPTION("Geometry \"" << strLinkGeometry << "\" is not implemented");
+            }
+
+            SLink* psLink = new SLink(strLinkId,
+                                       fMass,
+                                       psAnchor,
+                                       cExtents,
+                                       eGeometry);
+            m_tLinks[psLink->m_strId] = psLink;
+
+            // if link is a base link, set it to the reference link on the prototype
+            if (NodeAttributeExists(t_tree, 'base')) {
+               // if base link already set, then throw an exception
+               if (m_pcBase != NULL) { 
+                  THROW_ARGOSEXCEPTION("Base link cannot be specified on more than one link. Previously on: " + m_pcBase->m_strId + ". Currently on: " + psLink->m_strId );
+               }
+               m_pcBase = psLink;
+            } else if (itLink == itLink.end()) {
+               // if no base link has been specified, throw an exception
+               THROW_ARGOSEXCEPTION("Base link must be specified on at least one link");
+            }
+
          }
       }
       catch(CARGoSException& ex) {

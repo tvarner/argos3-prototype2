@@ -24,7 +24,7 @@ namespace argos {
       m_pcJointEquippedEntity->Enable();
 
       /* create a CSimulatedJointSensor for each linear and angular axis of each joint */
-      for(CJointEntity::TList::iterator itJoint =  m_pcJointEquippedEntity->GetAllJoints().begin();
+      for(CJointEquippedEntity:TJoints::iterator itJoint =  m_pcJointEquippedEntity->GetAllJoints().begin();
           itJoint != m_pcJointEquippedEntity->GetAllJoints().end();
           ++itJoint) {
          m_vecSensors.push_back(new CSimulatedJointSensor(*itJoint));

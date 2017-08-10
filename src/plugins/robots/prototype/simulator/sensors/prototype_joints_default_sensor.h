@@ -2,6 +2,7 @@
  * @file <argos3/plugins/robots/prototype/simulator/sensors/prototype_joints_default_sensor.cpp>
  *
  * @author Michael Allwright - <allsey87@gmail.com>
+ * @author Thomas Varner - <thomas.g.varner@gmail.com>
  */
 
 #ifndef PROTOTYPE_JOINTS_DEFAULT_SENSOR_H
@@ -27,8 +28,8 @@ namespace argos {
    public:
       class CSimulatedJointSensor : public CJointSensor {
       public:
-         CSimulatedJointSensor(CJointEntity* pc_sensor_joint) :
-            CJointSensor(pc_sensor_joint->GetId(), pc_sensor_joint->IsEnabled()),
+         CSimulatedJointSensor(CJointEquippedEntity::SJoint* pc_sensor_joint) :
+            CJointSensor(pc_sensor_joint->m_strId, pc_sensor_joint->m_bIsEnabled),
             m_pcSensorJoint(pc_sensor_joint) {}
          
          CJointEntity& GetJoint() {
@@ -46,12 +47,13 @@ namespace argos {
             m_cJointTranslationReading = m_pcSensorJoint->GetJointTranslation();
          }
       private:
-         CJointEntity* m_pcSensorJoint;
+         CJointEquippedEntity::SJoint* m_pcSensorJoint;
       };
       
    public:
 
       CPrototypeJointsDefaultSensor();
+
       virtual ~CPrototypeJointsDefaultSensor() {}
 
       virtual void SetRobot(CComposableEntity& c_entity);
@@ -69,7 +71,6 @@ namespace argos {
       std::vector<CSimulatedJointSensor*> m_vecSensors;
 
       CJointEquippedEntity* m_pcJointEquippedEntity;
-
    };
 }
 

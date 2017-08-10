@@ -39,6 +39,8 @@ namespace argos {
 
       virtual void CalculateBoundingBox();
 
+      virtual void Update
+
    private:
 
       CPrototypeEntity& m_cPrototypeEntity;

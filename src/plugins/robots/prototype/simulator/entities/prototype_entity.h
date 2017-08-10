@@ -2,21 +2,23 @@
  * @file <argos3/plugins/robots/prototype/simulator/entities/prototype_entity.h>
  *
  * @author Michael Allwright - <allsey87@gmail.com>
+ * @author Thomas Varner - <thomas.g.varner@gmail.com>
  */
 
 #ifndef PROTOTYPE_ENTITY_H
 #define PROTOTYPE_ENTITY_H
 
 namespace argos {
-   class CEmbodiedEntity;
-   class CControllableEntity;
-   class CLinkEquippedEntity;
-   class CLinkEntity;
-   class CJointEquippedEntity;
-   class CLEDEquippedEntity;
-   class CProximitySensorEquippedEntity;
-   class CPrototypeEntity;
-   class CLEDMedium;
+  class CPrototypeEntity;
+  class CEmbodiedEntity;
+  class CControllableEntity;
+  class CLinkEquippedEntity;
+  class CJointEquippedEntity;
+  class CPrototypeJointsDefaultActuator;
+  class CPrototypeJointsDefaultSensor;
+  class CLEDEquippedEntity;
+  class CProximitySensorEquippedEntity;
+  class CLEDMedium;
 }
 
 #include <argos3/core/simulator/entity/composable_entity.h>
@@ -87,25 +89,21 @@ namespace argos {
          return "prototype";
       }
 
-      inline CLinkEntity& GetReferenceLink() {
+      inline CLinkEquippedEntity::SLink& GetReferenceLink() {
          return *m_pcReferenceLink;
       }
 
    private:
       CEmbodiedEntity* m_pcEmbodiedEntity;
-      CControllableEntity* m_pcControllableEntity;
       CLinkEquippedEntity* m_pcLinkEquippedEntity;
+      CLinkEquippedEntity::SLink* m_psReferenceLink;
       CJointEquippedEntity* m_pcJointEquippedEntity;
-      CLEDEquippedEntity* m_pcLEDEquippedEntity;
-      CProximitySensorEquippedEntity* m_pcProximitySensorEquippedEntity;
       CPrototypeJointsDefaultActuator* m_pcJointActuators;
       CPrototypeJointsDefaultSensor* m_pcJointSensors;
-
+      CLEDEquippedEntity* m_pcLEDEquippedEntity;
+      CProximitySensorEquippedEntity* m_pcProximitySensorEquippedEntity;
       CLEDMedium* m_pcLEDMedium;
-
-      CLinkEntity* m_pcReferenceLink;
-   public: // hack
-      std::string m_strReferenceLink;
+      CControllableEntity* m_pcControllableEntity;
    };
 
 }

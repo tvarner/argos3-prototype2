@@ -41,12 +41,11 @@ namespace argos {
    /****************************************/
 
 
+   /*
+      Update physics model 
+   */
    void CPointMass3DProtoTypeModel::UpdateFromEntityStatus() {
-      // No need to implement since updating joint linear and angular velocities 
-      // directly in actuator update method.
-
-      // I assume PID control goes here for joint transform update
-         // update controls by servo gain * error
+      //@todo: read in joint actuator settings
    }
 
    /****************************************/

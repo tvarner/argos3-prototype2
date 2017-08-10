@@ -12,7 +12,9 @@ namespace argos {
    class CLinkEntity;
 }
 
-#include <argos3/plugins/robots/prototype/simulator/entities/link_entity.h>
+#include <argos3/core/utility/math/vector3.h>
+#include <argos3/core/utility/math/quaternion.h>
+#include <argos3/core/simulator/entity/embodied_entity.h>
 #include <argos3/core/simulator/entity/composable_entity.h>
 #include <map>
 
@@ -26,23 +28,53 @@ namespace argos {
 
    public:
 
+      enum EGeometry { 
+         CYLINDER,
+         BOX,
+         SPHERE
+      };
+
+      struct SLink { 
+         SLink(const std::string str_link_id,
+               const EGeometry e_geometry,
+               const Real f_mass,
+               const CVector3 c_extents,
+               const SAnchor& ps_anchor);
+
+         std::string m_strId;
+         Real m_fMass;
+         EGeometry m_eGeometry;
+         CVector3 m_cExtents;
+         SAnchor* m_psAnchor;
+      };
+
+   public:
+
+      typedef std::map<std::string, SLink*> TLinks;
+
+   public:
+
       CLinkEquippedEntity(CComposableEntity* pc_parent);
 
       CLinkEquippedEntity(CComposableEntity* pc_parent,
                           const std::string& str_id);
 
       virtual void Init(TConfigurationNode& t_tree);
+
+      virtual void Reset();
+      
+      virtual void Update() {}
  
-      CLinkEntity& GetLink(const std::string& str_link_id) {
+      SLink& GetLink(const std::string& str_link_id) {
          return *m_tLinks[str_link_id];
       }
 
-      CLinkEntity& GetBase() {
-         return *m_pcBase;
+      inline TLinks& GetAllLinks() {
+         return *m_vecLinks;
       }
 
-      inline CLinkEntity::TMap& GetLinks() {
-         return m_tLinks;
+      SLink& GetBase() {
+         return *m_pcBase;
       }
 
       virtual std::string GetTypeDescription() const {
@@ -51,9 +83,9 @@ namespace argos {
 
    protected:
       // todo, why is this protected? use link 0 as base link
-      CLinkEntity::TMap m_tLinks;
+      TLinks m_tLinks;
 
-      CLinkEntity* m_pcBase;
+      SLink m_pcBase;
    };
 
 }

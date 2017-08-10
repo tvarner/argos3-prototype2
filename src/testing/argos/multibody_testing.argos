@@ -29,7 +29,7 @@
     <prototype id="multibody" movable="true" ref="box0">
       <body position="-0.5,0,0" orientation="0,0,0" />
       <links>
-         <link id="box0" geometry="box" radius="0.0375" height=".075" size=".075,.075,.075" mass="5.05" position="0,0,0" orientation="0,0,0" />
+         <link id="box0" geometry="box" radius="0.0375" height=".075" size=".075,.075,.075" mass="5.05" position="0,0,0" orientation="0,0,0" base="base"/>
          <link id="cylinder0" geometry="cylinder" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.1" orientation="0,0,0" />
          <link id="sphere0" geometry="sphere" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0,0,0.2" orientation="0,0,0" />
          <link id="sphere1" geometry="sphere" radius="0.0375" height=".075" size=".075,.075,.075" mass=".05" position="0.1,0,0.1" orientation="0,180,0" />

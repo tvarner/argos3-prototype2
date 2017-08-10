@@ -35,6 +35,11 @@ namespace argos {
          m_fValues[3] = f_img3;
       }
 
+      // @todo: implement initial conversion from quaternion to euler
+      CQuaternion(const CVector3& c_vector3) {
+         FromEulerAngle(c_vector3);
+      }
+
       CQuaternion(const CRadians& c_radians,
                   const CVector3& c_vector3) {
          FromAngleAxis(c_radians, c_vector3);

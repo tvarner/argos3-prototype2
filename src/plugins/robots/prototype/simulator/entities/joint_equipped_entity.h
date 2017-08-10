@@ -12,7 +12,8 @@ namespace argos {
    class CJointEntity;
 }
 
-#include <argos3/plugins/robots/prototype/simulator/entities/joint_entity.h>
+#include <argos3/core/utility/math/vector3.h>
+#include <argos3/core/utility/math/quaternion.h>
 #include <argos3/core/simulator/entity/composable_entity.h>
 #include <map>
 
@@ -22,9 +23,39 @@ namespace argos {
 
    public:
 
+      enum EType { 
+         FIXED,
+         PRISMATIC,
+         REVOLUTE,
+         SPHERICAL,
+         PLANAR
+      };
+
+      struct SJoint { 
+         SJoint(const std::string str_joint_id,
+               const EType e_type,
+               const CLinkEquippedEntity::SLink* m_psParentLink,
+               const CLinkEquippedEntity::SLink* m_psChildLink,
+               CVector3 c_axis,
+               CVector3 c_linear_velocity,
+               CVector3 c_angular_velocity,
+               bool isEnabled);
+
+         std::string m_strId;
+         EType m_eType;
+         CLinkEquippedEntity::SLink* m_psParentLink;
+         CLinkEquippedEntity::SLink* m_psChildLink;
+         CVector3 m_cAxis;
+         CVector3 m_cLinearVelocity;
+         CVector3 m_cAngularVelocity;
+         bool m_bIsEnabled;
+      };
+
+   public:
+
       ENABLE_VTABLE();
 
-      typedef std::map<std::string, CJointEquippedEntity*> TMap;
+      typedef std::vector<SJoint*> TJoints;
 
    public:
 
@@ -34,12 +65,14 @@ namespace argos {
                           const std::string& str_id);
 
       virtual void Init(TConfigurationNode& t_tree);
+
       virtual void Reset();
+
       virtual void Update() {}
 
-      CJointEntity& GetJoint(UInt32 un_index);
+      SJoint& GetJoint(UInt32 un_index);
 
-      inline CJointEntity::TList& GetAllJoints() {
+      inline TJoints& GetAllJoints() {
          return m_tJoints;
       }
 
@@ -47,13 +80,17 @@ namespace argos {
          return "joints";
       }
 
-   protected:
+      inline void SetActuatorParametersJointVelocity(std::string str_joint_id,
+                                                      CVector3 e_joint_axis,
+                                                      Real f_target_velocity);
 
       virtual void UpdateComponents();
 
    protected:
 
-      CJointEntity::TList m_tJoints;
+      TJoints m_tJoints;
+
+      TConfigurationNode m_tInitialConfiguration;
    };
 
 }
