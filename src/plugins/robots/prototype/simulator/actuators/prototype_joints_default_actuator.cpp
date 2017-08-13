@@ -22,19 +22,18 @@ namespace argos {
 
    void CPrototypeJointsDefaultActuator::SetRobot(CComposableEntity& c_entity) {
       m_pcJointEquippedEntity = &(c_entity.GetComponent<CJointEquippedEntity>("joints"));
-      m_pcJointEquippedEntity->SetCanBeEnabledIfDisabled(true);
       m_pcJointEquippedEntity->Enable();
 
       /* create a CSimulatedJointActuator for each linear and angular axis of each joint */
-      for(CJointEntity::TList::iterator itJoint =  m_pcJointEquippedEntity->GetAllJoints().begin();
+      for(CJointEquippedEntity::TJoints::iterator itJoint =  m_pcJointEquippedEntity->GetAllJoints().begin();
           itJoint != m_pcJointEquippedEntity->GetAllJoints().end();
           ++itJoint) {
-         m_vecActuators[LINEAR_X].push_back(CSimulatedJointActuator(*itJoint, LINEAR_X));
-         m_vecActuators[LINEAR_Y].push_back(CSimulatedJointActuator(*itJoint, LINEAR_Y));
-         m_vecActuators[LINEAR_Z].push_back(CSimulatedJointActuator(*itJoint, LINEAR_Z));
-         m_vecActuators[ANGULAR_X].push_back(CSimulatedJointActuator(*itJoint, ANGULAR_X));
-         m_vecActuators[ANGULAR_Y].push_back(CSimulatedJointActuator(*itJoint, ANGULAR_Y));
-         m_vecActuators[ANGULAR_Z].push_back(CSimulatedJointActuator(*itJoint, ANGULAR_Z));
+         m_vecActuators[LINEAR_X].push_back(new CSimulatedJointActuator(*itJoint, LINEAR_X));
+         m_vecActuators[LINEAR_Y].push_back(new CSimulatedJointActuator(*itJoint, LINEAR_Y));
+         m_vecActuators[LINEAR_Z].push_back(new CSimulatedJointActuator(*itJoint, LINEAR_Z));
+         m_vecActuators[ANGULAR_X].push_back(new CSimulatedJointActuator(*itJoint, ANGULAR_X));
+         m_vecActuators[ANGULAR_Y].push_back(new CSimulatedJointActuator(*itJoint, ANGULAR_Y));
+         m_vecActuators[ANGULAR_Z].push_back(new CSimulatedJointActuator(*itJoint, ANGULAR_Z));
       }
    }
 
@@ -66,27 +65,27 @@ namespace argos {
              ++itActuator) {
             switch(itActuator->GetAxis()) {
             case LINEAR_X:
-               itActuator->GetJoint().SetActuatorParametersLinearX(itActuator->GetTargetVelocity(),
+               itActuator->GetJoint().SetActuatorParametersLinearVelocityX(itActuator->GetTargetVelocity(),
                                                         itActuator->GetEnabled());
                break;
             case LINEAR_Y:
-               itActuator->GetJoint().SetActuatorParametersLinearY(itActuator->GetTargetVelocity(),
+               itActuator->GetJoint().SetActuatorParametersLinearVelocityY(itActuator->GetTargetVelocity(),
                                                         itActuator->GetEnabled());
                break;
             case LINEAR_Z:
-               itActuator->GetJoint().SetActuatorParametersLinearZ(itActuator->GetTargetVelocity(),
+               itActuator->GetJoint().SetActuatorParametersLinearVelocityZ(itActuator->GetTargetVelocity(),
                                                         itActuator->GetEnabled());
                break;
             case ANGULAR_X:
-               itActuator->GetJoint().SetActuatorParametersAngularX(itActuator->GetTargetVelocity(),
+               itActuator->GetJoint().SetActuatorParametersAngularVelocityX(itActuator->GetTargetVelocity(),
                                                          itActuator->GetEnabled());
                break;
             case ANGULAR_Y:
-               itActuator->GetJoint().SetActuatorParametersAngularY(itActuator->GetTargetVelocity(),
+               itActuator->GetJoint().SetActuatorParametersAngularVelocityY(itActuator->GetTargetVelocity(),
                                                          itActuator->GetEnabled());
                break;
             case ANGULAR_Z:
-               itActuator->GetJoint().SetActuatorParametersAngularZ(itActuator->GetTargetVelocity(),
+               itActuator->GetJoint().SetActuatorParametersAngularVelocityZ(itActuator->GetTargetVelocity(),
                                                          itActuator->GetEnabled());
                break;
             }
@@ -97,46 +96,47 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   void CPrototypeJointsDefaultActuator::Reset() {
-     for(std::vector<std::vector<CSimulatedJointActuator> >::iterator itAxis = m_vecActuators.begin();
-          itAxis != m_vecActuators.end();
-          ++itAxis) {
-         for(std::vector<CSimulatedJointActuator>::iterator itActuator = itAxis->begin();
-             itActuator != itAxis->end();
-             ++itActuator) {
-            itActuator->SetEnabled(false);
-            itActuator->SetTargetVelocity(0.0f);
-         }
+  void CPrototypeJointsDefaultActuator::Reset() {
+    for(std::vector<std::vector<CSimulatedJointActuator> >::iterator itAxis = m_vecActuators.begin();
+      itAxis != m_vecActuators.end();
+      ++itAxis) {
+
+      for(std::vector<CSimulatedJointActuator>::iterator itActuator = itAxis->begin();
+           itActuator != itAxis->end();
+           ++itActuator) {
+        itActuator->SetEnabled(false);
+        itActuator->SetTargetVelocity(0.0f);
       }
-   }
+    }
+  }
 
    /****************************************/
    /****************************************/
 
-   REGISTER_ACTUATOR(CPrototypeJointsDefaultActuator,
-                     "joints", "default",
-                     "Michael Allwright [allsey87@gmail.com]",
-                     "1.0",
-                     "The prototype joint actuator.",
-                     "This actuator controls a specified joint of the prototype entity. For a complete\n"
-                     "description of its usage, refer to the ci_prototype_joint_actuator\n"
-                     "file.\n\n"
-                     "REQUIRED XML CONFIGURATION\n\n"
-                     "  <controllers>\n"
-                     "    ...\n"
-                     "    <my_controller ...>\n"
-                     "      ...\n"
-                     "      <actuators>\n"
-                     "        ...\n"
-                     "        <joints implementation=\"default\"/>\n"
-                     "        ...\n"
-                     "      </actuators>\n"
-                     "      ...\n"
-                     "    </my_controller>\n"
-                     "    ...\n"
-                     "  </controllers>\n\n"
-                     "OPTIONAL XML CONFIGURATION\n\n"
-                     "None for the time being.\n",
-                     "Usable"
-      );
+  REGISTER_ACTUATOR(CPrototypeJointsDefaultActuator,
+                   "joints", "default",
+                   "Michael Allwright [allsey87@gmail.com]",
+                   "1.0",
+                   "The prototype joint actuator.",
+                   "This actuator controls a specified joint of the prototype entity. For a complete\n"
+                   "description of its usage, refer to the ci_prototype_joint_actuator\n"
+                   "file.\n\n"
+                   "REQUIRED XML CONFIGURATION\n\n"
+                   "  <controllers>\n"
+                   "    ...\n"
+                   "    <my_controller ...>\n"
+                   "      ...\n"
+                   "      <actuators>\n"
+                   "        ...\n"
+                   "        <joints implementation=\"default\"/>\n"
+                   "        ...\n"
+                   "      </actuators>\n"
+                   "      ...\n"
+                   "    </my_controller>\n"
+                   "    ...\n"
+                   "  </controllers>\n\n"
+                   "OPTIONAL XML CONFIGURATION\n\n"
+                   "None for the time being.\n",
+                   "Usable"
+    );
 }

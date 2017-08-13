@@ -125,6 +125,13 @@ namespace argos {
    /****************************************/
    /****************************************/
 
+   void CLinkEquippedEntity::Reset() { 
+      //@todo: reset state of links
+   }
+
+   /****************************************/
+   /****************************************/
+
    REGISTER_STANDARD_SPACE_OPERATIONS_ON_COMPOSABLE(CLinkEquippedEntity);
 
    /****************************************/

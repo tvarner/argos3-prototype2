@@ -7,8 +7,7 @@
 #include "joint_equipped_entity.h"
 
 namespace argos {
-
-   SJoint::SJoint(const std::string str_joint_id,
+    SJoint::SJoint(const std::string str_joint_id,
                const EType e_type,
                const CLinkEquippedEntity::SLink* psParentLink,
                const CLinkEquippedEntity::SLink* psChildLink,
@@ -24,26 +23,26 @@ namespace argos {
       m_cLinearVelocity(c_linear_velocity),
       m_cAngularVelocity(c_angular_velocity),
       m_bIsEnabled(b_is_enabled) {
-   }
+    }
 
 
-   /****************************************/
-   /****************************************/
+    /****************************************/
+    /****************************************/
 
-   CJointEquippedEntity::CJointEquippedEntity(CComposableEntity* pc_parent) :
+    CJointEquippedEntity::CJointEquippedEntity(CComposableEntity* pc_parent) :
       CComposableEntity(pc_parent) {}
 
-   /****************************************/
-   /****************************************/
+    /****************************************/
+    /****************************************/
 
-   CJointEquippedEntity::CJointEquippedEntity(CComposableEntity* pc_parent,
+    CJointEquippedEntity::CJointEquippedEntity(CComposableEntity* pc_parent,
                                           const std::string& str_id) :
       CComposableEntity(pc_parent, str_id) {}
 
-   /****************************************/
-   /****************************************/
+    /****************************************/
+    /****************************************/
 
-   void CJointEquippedEntity::Init(TConfigurationNode& t_tree) {
+    void CJointEquippedEntity::Init(TConfigurationNode& t_tree) {
       try {
         /* Init parent */ // <-- the second constructor is called so no need to call init on composable entity
         // CComposableEntity::Init(t_tree);
@@ -156,38 +155,48 @@ namespace argos {
     }
   }
 
-   /****************************************/
-   /****************************************/
+  /****************************************/
+  /****************************************/
 
-    void CJointEquippedEntity::Reset() {
-      Init(*m_ptInitialConfiguration);
-    }
+  void CJointEquippedEntity::Reset() {
+    Init(*m_ptInitialConfiguration);
+  }
 
-   /****************************************/
-   /****************************************/
+  /****************************************/
+  /****************************************/
 
-   SJoint& CJointEquippedEntity::GetJoint(UInt32 un_index) {
-      ARGOS_ASSERT(un_index < m_tJoints.size(),
-                   "CJointEquippedEntity::GetJoint(), id=\"" <<
-                   GetId() <<
-                   "\": index out of bounds: un_index = " <<
-                   un_index <<
-                   ", m_tJoints.size() = " <<
-                   m_tJoints.size());
-      return *m_tJoints[un_index];
-   }
+  SJoint& CJointEquippedEntity::GetJoint(UInt32 un_index) {
+    ARGOS_ASSERT(un_index < m_tJoints.size(),
+               "CJointEquippedEntity::GetJoint(), id=\"" <<
+               GetId() <<
+               "\": index out of bounds: un_index = " <<
+               un_index <<
+               ", m_tJoints.size() = " <<
+               m_tJoints.size());
+    return *m_tJoints[un_index];
+  }
 
-   /****************************************/
-   /****************************************/
+  /****************************************/
+  /****************************************/
 
-   void CJointEquippedEntity::UpdateComponents() {}
+  void CJointEquippedEntity::UpdateComponents() {}
 
-   /****************************************/
-   /****************************************/
+  /****************************************/
+  /****************************************/
 
-   REGISTER_STANDARD_SPACE_OPERATIONS_ON_COMPOSABLE(CJointEquippedEntity);
+  void CJointEquippedEntity::Reset() { 
+    // @todo: reset state of joints
+  }
 
-   /****************************************/
-   /****************************************/
+  /****************************************/
+  /****************************************/
 
+  void CJointEquippedEntity::Update() { 
+    // @todo: update state of joints
+  }
+
+  REGISTER_STANDARD_SPACE_OPERATIONS_ON_COMPOSABLE(CJointEquippedEntity);
+
+  /****************************************/
+  /****************************************/
 }

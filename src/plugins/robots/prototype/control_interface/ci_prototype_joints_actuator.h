@@ -23,12 +23,12 @@ namespace argos {
    public:
 
       enum EActuatorAxis {
-         LINEAR_X = 0,
-         LINEAR_Y = 1,
-         LINEAR_Z = 2,
-         ANGULAR_X = 3,
-         ANGULAR_Y = 4,
-         ANGULAR_Z = 5
+         LINEAR_X = CVector3(1, 0, 0),
+         LINEAR_Y = CVector3(0, 1, 0),
+         LINEAR_Z = CVector3(0, 0, 1),
+         ANGULAR_X = CVector3(1, 0, 0),
+         ANGULAR_Y = CVector3(0, 1, 0),
+         ANGULAR_Z = CVector3(0, 0, 1)
       };
 
       class CJointActuator {
@@ -55,9 +55,6 @@ namespace argos {
 
    public:
 
-      /**
-       * Destructor.
-       */
       virtual ~CCI_PrototypeJointsActuator() {}
 
       virtual CJointActuator& GetJointActuator(std::string str_joint_id, EActuatorAxis e_axis) = 0;

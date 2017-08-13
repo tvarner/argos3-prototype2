@@ -34,7 +34,7 @@ namespace argos {
          SPHERE
       };
 
-      struct SLink { 
+      class SLink { 
          SLink(const std::string str_link_id,
                const EGeometry e_geometry,
                const Real f_mass,
@@ -46,6 +46,8 @@ namespace argos {
          EGeometry m_eGeometry;
          CVector3 m_cExtents;
          SAnchor* m_psAnchor;
+
+         Reset();
       };
 
    public:
@@ -84,6 +86,8 @@ namespace argos {
    protected:
       // todo, why is this protected? use link 0 as base link
       TLinks m_tLinks;
+
+      TConfigurationNode = m_cInitialConfiguration;
 
       SLink m_pcBase;
    };

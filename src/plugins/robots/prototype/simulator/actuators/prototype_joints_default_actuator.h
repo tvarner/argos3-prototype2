@@ -27,19 +27,19 @@ namespace argos {
    public:
       class CSimulatedJointActuator : public CJointActuator {
       public:
-         CSimulatedJointActuator(CJointEntity* pc_actuator_joint,
-                                 EActuatorAxis e_actuator_axis) :
+         CSimulatedJointActuator(CJointEquippedEntity::Sjoint* pc_actuator_joint,
+                                 CVector3 c_actuator_axis) :
             m_pcActuatorJoint(pc_actuator_joint),
-            m_eActuatorAxis(e_actuator_axis) {}
-         EActuatorAxis GetAxis() {
-            return m_eActuatorAxis;
+            m_cActuatorAxis(e_actuator_axis) {}
+         CVector3 GetAxis() {
+            return m_cActuatorAxis;
          }
-         CJointEntity& GetJoint() {
+         CJointEquippedEntity::Sjoint& GetJoint() {
             return *m_pcActuatorJoint;
          }
       private:
-         CJointEntity* m_pcActuatorJoint;
-         EActuatorAxis m_eActuatorAxis;
+         CJointEquippedEntity::Sjoint* m_pcActuatorJoint;
+         CVector3 m_cActuatorAxis;
       };
       
    public:
@@ -49,7 +49,7 @@ namespace argos {
 
       virtual void SetRobot(CComposableEntity& c_entity);
 
-      virtual CJointActuator& GetJointActuator(std::string str_joint_id, EActuatorAxis e_axis);
+      virtual CJointActuator& GetJointActuator(std::string str_joint_id, CVector3 c_actuator_axis);
 
       virtual void Update();
 

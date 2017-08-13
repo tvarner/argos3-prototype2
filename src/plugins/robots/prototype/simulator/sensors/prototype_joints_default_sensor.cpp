@@ -2,97 +2,99 @@
  * @file <argos3/plugins/robots/prototype/simulator/sensors/prototype_joints_default_sensor.cpp>
  *
  * @author Michael Allwright - <allsey87@gmail.com>
+ * @author Thomas Varner - <thomas.g.varner@gmail.com>
  */
 
 #include "prototype_joints_default_sensor.h"
 
 namespace argos {
 
+  /****************************************/
+  /****************************************/
+
+  CPrototypeJointsDefaultSensor::CPrototypeJointsDefaultSensor() :
+    m_pcJointEquippedEntity(NULL) {
+  }
+
+  /****************************************/
+  /****************************************/
+
+  void CPrototypeJointsDefaultSensor::SetRobot(CComposableEntity& c_entity) {
+    m_pcJointEquippedEntity = &(c_entity.GetComponent<CJointEquippedEntity>("joints"));
+    
+    m_pcJointEquippedEntity->Enable();
+
+    /* create a CSimulatedJointSensor for each linear and angular axis of each joint */
+    for(CJointEquippedEntity:TJoints::iterator itJoint =  m_pcJointEquippedEntity->GetAllJoints().begin();
+        itJoint != m_pcJointEquippedEntity->GetAllJoints().end();
+        ++itJoint) {
+        m_vecSensors.push_back(new CSimulatedJointSensor(*itJoint));
+    }
+  }
+
    /****************************************/
    /****************************************/
 
-   CPrototypeJointsDefaultSensor::CPrototypeJointsDefaultSensor() :
-      m_pcJointEquippedEntity(NULL) {
-   }
-
-   /****************************************/
-   /****************************************/
-
-   void CPrototypeJointsDefaultSensor::SetRobot(CComposableEntity& c_entity) {
-      m_pcJointEquippedEntity = &(c_entity.GetComponent<CJointEquippedEntity>("joints"));
-      m_pcJointEquippedEntity->SetCanBeEnabledIfDisabled(true);
-      m_pcJointEquippedEntity->Enable();
-
-      /* create a CSimulatedJointSensor for each linear and angular axis of each joint */
-      for(CJointEquippedEntity:TJoints::iterator itJoint =  m_pcJointEquippedEntity->GetAllJoints().begin();
-          itJoint != m_pcJointEquippedEntity->GetAllJoints().end();
-          ++itJoint) {
-         m_vecSensors.push_back(new CSimulatedJointSensor(*itJoint));
+  CPrototypeJointsDefaultSensor::CJointSensor* CPrototypeJointsDefaultSensor::GetJointSensor(std::string str_joint_id) {
+    std::vector<CSimulatedJointSensor*>::iterator itSensor;
+    /* search the collection and locate the correct sensor using the joint id */
+    for(itSensor = m_vecSensors.begin();
+        itSensor != m_vecSensors.end();
+        ++itSensor) {
+      if((*itSensor)->GetJoint().m_strId == str_joint_id) {
+        break;
       }
-   }
-
-   /****************************************/
-   /****************************************/
-
-   CPrototypeJointsDefaultSensor::CJointSensor* CPrototypeJointsDefaultSensor::GetJointSensor(std::string str_joint_id) {
-      std::vector<CSimulatedJointSensor*>::iterator itSensor;
-      /* search the collection and locate the correct sensor using the joint id */
-      for(itSensor = m_vecSensors.begin();
-          itSensor != m_vecSensors.end();
-          ++itSensor) {
-         if((*itSensor)->GetJoint().GetId() == str_joint_id) {
-            break;
-         }
-      }
-      return *itSensor;
-   }
+    }
+    return *itSensor;
+  }
 
 
    /****************************************/
    /****************************************/
 
-   std::vector<CPrototypeJointsDefaultSensor::CJointSensor*> CPrototypeJointsDefaultSensor::GetAllJointSensors() {
+  std::vector<CPrototypeJointsDefaultSensor::CJointSensor*> CPrototypeJointsDefaultSensor::GetAllJointSensors() {
       std::vector<CJointSensor*> vecSensors;
       for(std::vector<CSimulatedJointSensor*>::iterator itSensor = m_vecSensors.begin();
           itSensor != m_vecSensors.end();
           ++itSensor) {
-         vecSensors.push_back(*itSensor);
+        vecSensors.push_back(*itSensor);
       }
       return vecSensors;
-   }
+  }
 
-   /****************************************/
-   /****************************************/
+  /****************************************/
+  /****************************************/
 
-   void CPrototypeJointsDefaultSensor::Update() {
-      std::vector<CSimulatedJointSensor*>::iterator itSensor;
-      /* search the collection and locate the correct sensor using the joint id */
-      for(itSensor = m_vecSensors.begin();
-          itSensor != m_vecSensors.end();
-          ++itSensor) {
-         (*itSensor)->Update();
-      }
-   }
+  void CPrototypeJointsDefaultSensor::Update() {
+    std::vector<CSimulatedJointSensor*>::iterator itSensor;
+    /* search the collection and locate the correct sensor using the joint id */
+    for(itSensor = m_vecSensors.begin();
+        itSensor != m_vecSensors.end();
+        ++itSensor) {
+      (*itSensor)->Update();
+    }
+  }
 
-   /****************************************/
-   /****************************************/
+  /****************************************/
+  /****************************************/
 
-   void CPrototypeJointsDefaultSensor::Reset() {
-      std::vector<CSimulatedJointSensor*>::iterator itSensor;
-      /* search the collection and locate the correct sensor using the joint id */
-      for(itSensor = m_vecSensors.begin();
-          itSensor != m_vecSensors.end();
-          ++itSensor) {
-         (*itSensor)->Reset();
-      } 
-   }
+  void CPrototypeJointsDefaultSensor::Reset() {
+    std::vector<CSimulatedJointSensor*>::iterator itSensor;
+    /* search the collection and locate the correct sensor using the joint id */
+    for(itSensor = m_vecSensors.begin();
+        itSensor != m_vecSensors.end();
+        ++itSensor) {
+      (*itSensor)->Reset();
+    } 
+  }
 
-   /****************************************/
-   /****************************************/
+  /****************************************/
+  /****************************************/
 
-   REGISTER_SENSOR(CPrototypeJointsDefaultSensor,
+  REGISTER_SENSOR(CPrototypeJointsDefaultSensor,
                      "joints", "default",
-                     "Michael Allwright [allsey87@gmail.com]",
+                     "Michael Allwright [allsey87@gmail.com],
+                      Thomas Varner [thomas.g.varner@gmail.com]",
                      "1.0",
                      "The prototype joint sensor.",
                      "This sensor controls a specified joint of the prototype entity. For a complete\n"
@@ -115,5 +117,5 @@ namespace argos {
                      "OPTIONAL XML CONFIGURATION\n\n"
                      "None for the time being.\n",
                      "Under Development"
-      );
+  );
 }

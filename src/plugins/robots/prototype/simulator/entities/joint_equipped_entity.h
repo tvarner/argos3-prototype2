@@ -31,23 +31,32 @@ namespace argos {
          PLANAR
       };
 
-      struct SJoint { 
-         SJoint(const std::string str_joint_id,
+      // make this and SLink a class, all members private, add
+      // getters and setters (set actuator params linear, angular xyz)
+      class CJoint { 
+         CJoint(const std::string str_joint_id,
                const EType e_type,
                const CLinkEquippedEntity::SLink* m_psParentLink,
                const CLinkEquippedEntity::SLink* m_psChildLink,
-               CVector3 c_axis,
+               CVector3 c_joint_axis,
                CVector3 c_linear_velocity,
                CVector3 c_angular_velocity,
                bool isEnabled);
+
+         CJoint::SetActuatorParametersLinearX(Real f_target_velocity, bool b_isEnabled);
+         CJoint::SetActuatorParametersLinearY(Real f_target_velocity, bool b_isEnabled);
+         CJoint::SetActuatorParametersLinearZ(Real f_target_velocity, bool b_isEnabled);
+         CJoint::SetActuatorParametersAngularX(Real f_target_velocity, bool b_isEnabled);
+         CJoint::SetActuatorParametersAngularY(Real f_target_velocity, bool b_isEnabled);
+         CJoint::SetActuatorParametersAngularZ(Real f_target_velocity, bool b_isEnabled);
 
          std::string m_strId;
          EType m_eType;
          CLinkEquippedEntity::SLink* m_psParentLink;
          CLinkEquippedEntity::SLink* m_psChildLink;
-         CVector3 m_cAxis;
          CVector3 m_cLinearVelocity;
          CVector3 m_cAngularVelocity;
+         CVector3 m_cJointAxis;
          bool m_bIsEnabled;
       };
 
@@ -80,10 +89,23 @@ namespace argos {
          return "joints";
       }
 
-      inline void SetActuatorParametersJointVelocity(std::string str_joint_id,
-                                                      CVector3 e_joint_axis,
+      inline void SetActuatorParametersLinearVelocityX(std::string str_joint_id,
                                                       Real f_target_velocity);
 
+      inline void SetActuatorParametersLinearVelocityY(std::string str_joint_id,
+                                                      Real f_target_velocity);
+
+      inline void SetActuatorParametersLinearVelocityZ(std::string str_joint_id,
+                                                      Real f_target_velocity);
+
+      inline void SetActuatorParametersAngularVelocityX(std::string str_joint_id,
+                                                      Real f_target_velocity);
+
+      inline void SetActuatorParametersAngularVelocityY(std::string str_joint_id,
+                                                      Real f_target_velocity);
+
+      inline void SetActuatorParametersAngularVelocityZ(std::string str_joint_id,
+                                                      Real f_target_velocity);
       virtual void UpdateComponents();
 
    protected:

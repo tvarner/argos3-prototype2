@@ -29,10 +29,10 @@ namespace argos {
       class CSimulatedJointSensor : public CJointSensor {
       public:
          CSimulatedJointSensor(CJointEquippedEntity::SJoint* pc_sensor_joint) :
-            CJointSensor(pc_sensor_joint->m_strId, pc_sensor_joint->m_bIsEnabled),
+            CJointSensor(pc_sensor_joint->GetId(), pc_sensor_joint->GetEnabled()),
             m_pcSensorJoint(pc_sensor_joint) {}
          
-         CJointEntity& GetJoint() {
+         CJointEquippedEntity::SJoint& GetJoint() {
             return *m_pcSensorJoint;
          }
          
@@ -42,6 +42,10 @@ namespace argos {
             m_bSensorEnabled = false;
          }
 
+         /*
+            FYI: joint translation (position) and rotation (orientation)
+            is updated in the PHYSICS step and read here.
+         */
          void Update() {
             m_cJointRotationReading = m_pcSensorJoint->GetJointRotation();
             m_cJointTranslationReading = m_pcSensorJoint->GetJointTranslation();

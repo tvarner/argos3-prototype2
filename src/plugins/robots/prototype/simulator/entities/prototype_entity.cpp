@@ -93,12 +93,12 @@ namespace argos {
           for(itDevice = itDevice.begin(&GetNode(t_tree, "devices"));
             itDevice != itDevice.end();
               ++itDevice) {
-             if(itDevice->Value() == "rangefinders") {
+              if(itDevice->Value() == "rangefinders") {
                 m_pcProximitySensorEquippedEntity = new CProximitySensorEquippedEntity(this);
                 m_pcProximitySensorEquippedEntity->Init(*itDevice);
                 AddComponent(*m_pcProximitySensorEquippedEntity);
-             }
-             else if(itDevice->Value() == "leds" ) {
+              }
+              else if(itDevice->Value() == "leds" ) {
 
                 /* Init LED equipped entity component */
                 m_pcLEDEquippedEntity = new CLEDEquippedEntity(this);
@@ -114,20 +114,20 @@ namespace argos {
                 m_pcLEDMedium = &CSimulator::GetInstance().GetMedium<CLEDMedium>(strMedium);
                 m_pcLEDEquippedEntity->AddToMedium(*m_pcLEDMedium);
               }
-          /*
-             else if(itDevice->Value() == "cameras" ) {
+              /*
+              else if(itDevice->Value() == "cameras" ) {
                 CCameraEquippedEntity* m_pcEquippedEntity =
                    new CCameraEquippedEntity(this);
                 m_pcEquippedEntity->Init(*itDevice);
                 AddComponent(*m_pcEquippedEntity);
-             }
-             else if(itDevice->Value() == "electromagnets" ) {
+              }
+              else if(itDevice->Value() == "electromagnets" ) {
                 CElectromagnetEquippedEntity* m_pcEquippedEntity =
                    new CElectromagnetEquippedEntity(this);
                 m_pcEquippedEntity->Init(*itDevice);
                 AddComponent(*m_pcEquippedEntity);
-             }
-             else if(itDevice->Value() == "tags" ) {
+              }
+              else if(itDevice->Value() == "tags" ) {
                 CTagEquippedEntity* m_pcEquippedEntity =
                    new CTagEquippedEntity(this);
                 m_pcEquippedEntity->Init(*itDevice);
@@ -135,13 +135,13 @@ namespace argos {
                 GetNodeAttribute(*itDevice, "medium", strMedium);
                 m_pcEquippedEntity->AddToMedium(CSimulator::GetInstance().GetMedium<CTagMedium>(strMedium));
                 AddComponent(*m_pcEquippedEntity);
-             }
-             else if(itDevice->Value() == "radios" ) {
+              }
+              else if(itDevice->Value() == "radios" ) {
                 CRadioEquippedEntity* m_pcEquippedEntity =
                   new CRadioEquippedEntity(this);
                 m_pcEquippedEntity->Init(*itDevice);
                 AddComponent(*m_pcEquippedEntity);
-            }
+              }
           */
             else {
               THROW_ARGOSEXCEPTION("Device type \"" << itDevice->Value() << "\" not implemented");
@@ -149,25 +149,40 @@ namespace argos {
           }
         }
 
-          /* Controllable entity
-          It must be the last one, for actuators/sensors to link to composing entities correctly */
-          if(NodeExists(t_tree, "controller")) {
+        /* Controllable entity
+        It must be the last one, for actuators/sensors to link to composing entities correctly */
+        if(NodeExists(t_tree, "controller")) {
           m_pcControllableEntity = new CControllableEntity(this);
           AddComponent(*m_pcControllableEntity);
           m_pcControllableEntity->Init(GetNode(t_tree, "controller"));
-          }
-          /* Update components */
-          UpdateComponents();
+        }
+
+        /* Update components */
+        UpdateComponents();
       }
       catch(CARGoSException& ex) {
          THROW_ARGOSEXCEPTION_NESTED("Failed to initialize entity \"" << GetId() << "\".", ex);
       }
-   }
+    }
 
-   /****************************************/
-   /****************************************/
+    /****************************************/
+    /****************************************/
 
-   REGISTER_ENTITY(CPrototypeEntity,
+    void CPrototypeEntity::Reset() { 
+      //@todo
+    }
+
+    /****************************************/
+    /****************************************/
+
+    void CPrototypeEntity::Destroy() { 
+      //@todo
+    }
+
+    /****************************************/
+    /****************************************/
+
+    REGISTER_ENTITY(CPrototypeEntity,
                    "prototype",
                    "1.1",
                    "Michael Allwright [allsey87@gmail.com],
@@ -175,13 +190,13 @@ namespace argos {
                    "A generic and configurable entity",
                    "[long description]",
                    "Under development"
-   );
+    );
 
-   /****************************************/
-   /****************************************/
+    /****************************************/
+    /****************************************/
 
-   REGISTER_STANDARD_SPACE_OPERATIONS_ON_COMPOSABLE(CPrototypeEntity);
+    REGISTER_STANDARD_SPACE_OPERATIONS_ON_COMPOSABLE(CPrototypeEntity);
 
-   /****************************************/
-   /****************************************/
+    /****************************************/
+    /****************************************/
 }
