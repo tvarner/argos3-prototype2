@@ -8,7 +8,7 @@
 
 namespace argos {
 
-   SLink::SLink(const std::string& str_link_id,
+   CLink::CLink(const std::string& str_link_id,
                const EGeometry e_geometry,
                const Real f_mass,
                const CVector3 c_extents,
@@ -96,7 +96,7 @@ namespace argos {
                THROW_ARGOSEXCEPTION("Geometry \"" << strLinkGeometry << "\" is not implemented");
             }
 
-            SLink* psLink = new SLink(strLinkId,
+            CLink* psLink = new CLink(strLinkId,
                                        fMass,
                                        psAnchor,
                                        cExtents,
@@ -110,11 +110,10 @@ namespace argos {
                   THROW_ARGOSEXCEPTION("Base link cannot be specified on more than one link. Previously on: " + m_pcBase->m_strId + ". Currently on: " + psLink->m_strId );
                }
                m_pcBase = psLink;
-            } else if (itLink == itLink.end()) {
+            } else if (itLink == itLink.end() && m_pcBase == NULL) {
                // if no base link has been specified, throw an exception
                THROW_ARGOSEXCEPTION("Base link must be specified on at least one link");
             }
-
          }
       }
       catch(CARGoSException& ex) {
@@ -127,6 +126,13 @@ namespace argos {
 
    void CLinkEquippedEntity::Reset() { 
       //@todo: reset state of links
+   }
+
+   /****************************************/
+   /****************************************/
+
+   void CLinkEquippedEntity::Destroy() { 
+      //@todo: destroy this entity
    }
 
    /****************************************/

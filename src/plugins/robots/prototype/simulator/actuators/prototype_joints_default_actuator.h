@@ -26,17 +26,21 @@ namespace argos {
 
    public:
       class CSimulatedJointActuator : public CJointActuator {
+      
       public:
          CSimulatedJointActuator(CJointEquippedEntity::Sjoint* pc_actuator_joint,
-                                 CVector3 c_actuator_axis) :
+                                 EActuatorAxis e_actuator_axis) :
             m_pcActuatorJoint(pc_actuator_joint),
             m_cActuatorAxis(e_actuator_axis) {}
-         CVector3 GetAxis() {
+         
+         EActuatorAxis GetAxis() {
             return m_cActuatorAxis;
          }
+         
          CJointEquippedEntity::Sjoint& GetJoint() {
             return *m_pcActuatorJoint;
          }
+
       private:
          CJointEquippedEntity::Sjoint* m_pcActuatorJoint;
          CVector3 m_cActuatorAxis;

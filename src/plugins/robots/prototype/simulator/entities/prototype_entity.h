@@ -93,14 +93,14 @@ namespace argos {
          return "prototype";
       }
 
-      inline CLinkEquippedEntity::SLink& GetReferenceLink() {
+      inline CLinkEquippedEntity::CLink& GetReferenceLink() {
          return *m_pcReferenceLink;
       }
 
    private:
       CEmbodiedEntity* m_pcEmbodiedEntity;
       CLinkEquippedEntity* m_pcLinkEquippedEntity;
-      CLinkEquippedEntity::SLink* m_psReferenceLink;
+      CLinkEquippedEntity::CLink* m_psReferenceLink;
       CJointEquippedEntity* m_pcJointEquippedEntity;
       CPrototypeJointsDefaultActuator* m_pcJointActuators;
       CPrototypeJointsDefaultSensor* m_pcJointSensors;

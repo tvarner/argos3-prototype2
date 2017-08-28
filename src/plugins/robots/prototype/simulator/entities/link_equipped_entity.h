@@ -34,12 +34,32 @@ namespace argos {
          SPHERE
       };
 
-      class SLink { 
-         SLink(const std::string str_link_id,
+      class CLink { 
+         CLink(const std::string str_link_id,
                const EGeometry e_geometry,
                const Real f_mass,
                const CVector3 c_extents,
                const SAnchor& ps_anchor);
+
+         std::string GetId() {
+            return m_strId;
+         }
+
+         Real GetMass() { 
+            return m_fMass;
+         }         
+
+         EGeometry GetGeometry() { 
+            return m_eGeometry;
+         }
+
+         CVector3 GetExtents() { 
+            return m_cExtents;
+         }
+
+         SAnchor* GetAnchor() { 
+            return m_psAnchor();
+         }
 
          std::string m_strId;
          Real m_fMass;
@@ -52,7 +72,7 @@ namespace argos {
 
    public:
 
-      typedef std::map<std::string, SLink*> TLinks;
+      typedef std::map<std::string, CLink*> TLinks;
 
    public:
 
@@ -67,7 +87,7 @@ namespace argos {
       
       virtual void Update() {}
  
-      SLink& GetLink(const std::string& str_link_id) {
+      CLink& GetLink(const std::string& str_link_id) {
          return *m_tLinks[str_link_id];
       }
 
@@ -75,7 +95,7 @@ namespace argos {
          return *m_vecLinks;
       }
 
-      SLink& GetBase() {
+      CLink& GetBase() {
          return *m_pcBase;
       }
 
@@ -89,7 +109,7 @@ namespace argos {
 
       TConfigurationNode = m_cInitialConfiguration;
 
-      SLink m_pcBase;
+      CLink m_pcBase;
    };
 
 }

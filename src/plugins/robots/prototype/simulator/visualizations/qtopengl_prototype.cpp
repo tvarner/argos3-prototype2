@@ -114,7 +114,7 @@ namespace argos {
 
    void CQTOpenGLPrototype::DrawBodies(CPrototypeEntity& c_entity) {
       /* Draw the bodies */
-      for(CLinkEntity::TMap::iterator itLink = std::begin(c_entity.GetLinkEquippedEntity().GetLinks());
+      for(CLinkEquippedEntity::CLink::TMap::iterator itLink = std::begin(c_entity.GetLinkEquippedEntity().GetLinks());
           itLink != std::end(c_entity.GetLinkEquippedEntity().GetLinks());
           ++itLink) {
          /* Configure the body material */
@@ -142,13 +142,13 @@ namespace argos {
                   itLink->second->GetExtents().GetZ());
          /* Forth, draw the body by calling the correct list */
          switch(itLink->second->GetGeometry()) {
-         case CLinkEntity::EGeometry::BOX:
+         case CLinkEquippedEntity::CLink::EGeometry::BOX:
             glCallList(m_unBoxList);
             break;
-         case CLinkEntity::EGeometry::CYLINDER:
+         case CLinkEquippedEntity::CLink::EGeometry::CYLINDER:
             glCallList(m_unCylinderList);
             break;
-         case CLinkEntity::EGeometry::SPHERE:
+         case CLinkEquippedEntity::CLink::EGeometry::SPHERE:
             glCallList(m_unSphereList);
             break;
          }

@@ -30,8 +30,10 @@ namespace argos {
       
       virtual void Reset();
 
+      // read in joint actuator settings
       virtual void UpdateFromEntityStatus();
 
+      // perform physics step
       virtual void Step();
 
       virtual bool CheckIntersectionWithRay(Real& f_t_on_ray,
@@ -39,11 +41,11 @@ namespace argos {
 
       virtual void CalculateBoundingBox();
 
-      virtual void Update
-
    private:
 
       CPrototypeEntity& m_cPrototypeEntity;
+
+      CPrototypeJointsDefaultActuator* m_pcJointsActuator;
    };
 
 }

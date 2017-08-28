@@ -9,8 +9,8 @@
 namespace argos {
     SJoint::SJoint(const std::string str_joint_id,
                const EType e_type,
-               const CLinkEquippedEntity::SLink* psParentLink,
-               const CLinkEquippedEntity::SLink* psChildLink,
+               const CLinkEquippedEntity::CLink* psParentLink,
+               const CLinkEquippedEntity::CLink* psChildLink,
                CVector3 c_axis,
                CVector3 c_linear_velocity,
                CVector3 c_angular_velocity,
@@ -51,6 +51,7 @@ namespace argos {
           /* NOTE: this configuration is valid until prototype entity is 
                    reinitialized
           */
+        // Is this necessary??
         if (m_ptInitialConfiguration != NULL) { 
           m_ptInitialConfiguration = t_tree->Clone();
         }
@@ -72,7 +73,7 @@ namespace argos {
           // get joint type
           std::string strJointType;
           EType eJointType;
-          GetNodeAttribute(t_tree, "type", strJointType);
+          GetNodeAttribute(*itJoint, "type", strJointType);
           if(strJointType == "fixed") {
             eJointType = FIXED;
           }
@@ -81,14 +82,11 @@ namespace argos {
           }
           else if(strJointType == "revolute") {
             eJointType = REVOLUTE;
-          }
-          else if(strJointType == "spherical") {
+          } else if(strJointType == "spherical") {
             eJointType = SPHERICAL;
-          }
-          else if(strJointType == "planar") {
+          } else if(strJointType == "planar") {
             eJointType = PLANAR;
-          }
-          else {
+          } else {
             THROW_ARGOSEXCEPTION("Joint type \"" << strJointType << "\" is not implemented");
           }
 
@@ -96,24 +94,24 @@ namespace argos {
           CLinkEquippedEntity* cLinkEquippedEntity = GetParent().GetComponent<CLinkEquippedEntity>("links");
 
           // get parent node
-          TConfigurationNode& tJointParentNode = GetNode(t_tree, "parent");
+          TConfigurationNode& tJointParentNode = GetNode(*itJoint, "parent");
           
           // get parent link id attr from parent node
           std::string strJointParentLinkId;
           GetNodeAttribute(tJointParentNode, "link", strJointParentLinkId);
 
-          // use parent link id to get parent SLink from link equipped entity
+          // use parent link id to get parent link struct (CLinkEquippedEntity::CLink) from link equipped entity
           psParentLink = &(cLinkEquippedEntity.GetLink(strJointParentLinkId));
           GetNodeAttributeOrDefault(tJointParentNode, "position", m_cParentLinkJointPosition, m_cParentLinkJointPosition);
           GetNodeAttributeOrDefault(tJointParentNode, "orientation", m_cParentLinkJointOrientation, m_cParentLinkJointOrientation);
 
-          // set parent position on SLink from parent node
+          // set parent position on link struct (CLinkEquippedEntity::CLink) from parent node
           GetNodeAttributeOrDefault(tJointParentNode, 
                                 "position", 
                                 psParentLink->m_psAnchor->Position, 
                                 psParentLink->m_psAnchor->Position);
 
-          // set parent orientation on parent SLink from parent node
+          // set parent orientation on parent link struct (CLinkEquippedEntity::CLink) from parent node
           CVector3 cParentLinkOrientation;
           GetNodeAttributeOrDefault(tJointParentNode, 
                                 "orientation", 
@@ -127,15 +125,16 @@ namespace argos {
           std::string strJointChildLinkId;
           GetNodeAttribute(tJointChildNode, "link", strJointChildLinkId);
 
-          // use child link id to get child SLink from link equipped entity
+          // use child link id to get child link struct (CLinkEquippedEntity::CLink) from link equipped entity
           psChildLink = &(cLinkEquippedEntity.GetLink(strJointChildLinkId));
           GetNodeAttributeOrDefault(tJointChildNode, 
                                 "position", 
                                 psChildLink->m_psAnchor->Orientation, 
                                 psChildLink->m_psAnchor->Orientation);
 
-          Real fInitialLinearVelocity = 0.0f;
-          Real fInitialAngularVelocity = 0.0f;
+          // define initial joint linear and angular velocities
+          CVector3 cInitialLinearVelocity;
+          CVector3 cInitialAngularVelocity;
 
           // create new joint
           SJoint* joint = new SJoint(strJointId,
@@ -143,8 +142,8 @@ namespace argos {
                                     psParentLink,
                                     psChildLink,
                                     cJointAxis,
-                                    fInitialLinearVelocity,
-                                    fInitialAngularVelocity)
+                                    cInitialLinearVelocity,
+                                    cInitialAngularVelocity)
 
           // add joint to joints map
           m_tJoints.push_back(joint);
@@ -191,8 +190,8 @@ namespace argos {
   /****************************************/
   /****************************************/
 
-  void CJointEquippedEntity::Update() { 
-    // @todo: update state of joints
+  void CJointEquippedEntity::Destroy() { 
+    // @todo: reset state of joints
   }
 
   REGISTER_STANDARD_SPACE_OPERATIONS_ON_COMPOSABLE(CJointEquippedEntity);

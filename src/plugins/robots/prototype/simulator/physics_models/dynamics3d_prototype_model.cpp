@@ -85,7 +85,7 @@ namespace argos {
    /****************************************/
    /****************************************/
 
-   CDynamics3DPrototypeModel::SLink& CDynamics3DPrototypeModel::AddLink(const CLinkEntity& c_link) {
+   CDynamics3DPrototypeModel::CLink& CDynamics3DPrototypeModel::AddLink(const CLinkEntity& c_link) {
       btVector3 cHalfExtents(c_link.GetExtents().GetX() * 0.5f,
                              c_link.GetExtents().GetZ() * 0.5f,
                              c_link.GetExtents().GetY() * 0.5f);
@@ -146,7 +146,7 @@ namespace argos {
       
       /* use the reference link as the base of the robot */
       CLinkEntity& cBase = c_entity.GetReferenceLink();
-      SLink& sBaseLink = AddLink(cBase);
+      CLink& sBaseLink = AddLink(cBase);
       
       SetBase(m_cLinkEquippedEntity.GetLinks().size() - 1, sBaseLink.Mass, sBaseLink.Inertia);
 
@@ -174,8 +174,8 @@ namespace argos {
                    << cChildLink.GetAnchor().Index << std::endl;
 
          if(true) { //parent link exists
-            const SLink& sChildLink = AddLink(cChildLink);
-            const SLink& sParentLink = m_vecLinks[cParentLink.GetAnchor().Index - 1];
+            const CLink& sChildLink = AddLink(cChildLink);
+            const CLink& sParentLink = m_vecLinks[cParentLink.GetAnchor().Index - 1];
 
             // setup joint
 
@@ -292,7 +292,7 @@ namespace argos {
       // Colliders TODO: loop over an array in the base class
 
       /* setup collider */
-      for(SLink& s_link : m_vecLinks) {
+      for(CLink& s_link : m_vecLinks) {
          s_link.Init(this, s_link.Anchor.Index - 2);
          c_engine.GetPhysicsWorld()->addCollisionObject(s_link.Collider, btBroadphaseProxy::DefaultFilter, btBroadphaseProxy::AllFilter);
       }

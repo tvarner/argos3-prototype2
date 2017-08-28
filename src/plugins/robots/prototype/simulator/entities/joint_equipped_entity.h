@@ -31,29 +31,108 @@ namespace argos {
          PLANAR
       };
 
-      // make this and SLink a class, all members private, add
+      // make this and CLink a class, all members private, add
       // getters and setters (set actuator params linear, angular xyz)
       class CJoint { 
          CJoint(const std::string str_joint_id,
                const EType e_type,
-               const CLinkEquippedEntity::SLink* m_psParentLink,
-               const CLinkEquippedEntity::SLink* m_psChildLink,
+               const CLinkEquippedEntity::CLink* m_psParentLink,
+               const CLinkEquippedEntity::CLink* m_psChildLink,
                CVector3 c_joint_axis,
                CVector3 c_linear_velocity,
                CVector3 c_angular_velocity,
                bool isEnabled);
 
-         CJoint::SetActuatorParametersLinearX(Real f_target_velocity, bool b_isEnabled);
-         CJoint::SetActuatorParametersLinearY(Real f_target_velocity, bool b_isEnabled);
-         CJoint::SetActuatorParametersLinearZ(Real f_target_velocity, bool b_isEnabled);
-         CJoint::SetActuatorParametersAngularX(Real f_target_velocity, bool b_isEnabled);
-         CJoint::SetActuatorParametersAngularY(Real f_target_velocity, bool b_isEnabled);
-         CJoint::SetActuatorParametersAngularZ(Real f_target_velocity, bool b_isEnabled);
+         std::string GetId() { 
+            return m_strId;
+         }
+
+         EType GetType() { 
+            return m_eType;
+         }
+
+         CLinkEquippedEntity::CLink* GetParentLink() { 
+            return m_psParentLink;
+         }
+
+         CLinkEquippedEntity::CLink* GetChildLink() { 
+            return m_psChildLink;
+         }
+
+         CVector3 GetLinearVelocity() { 
+            return m_cLinearVelocity;
+         }
+
+         CVector3 GetAngularVelocity() { 
+            return m_cAngularVelocity;
+         }
+
+         CVector3 GetJointAxis() { 
+            return m_cJointAxis;
+         }
+
+         bool GetEnabled() { 
+            return m_bIsEnabled;
+         }
+
+         void SetActuatorParametersLinearVelocityX(Real f_target_velocity, bool b_isEnabled) {
+            m_bIsEnabled = b_isEnabled;
+            if (m_bIsEnabled == true) { 
+               m_cLinearVelocity.SetX(f_target_velocity);
+            } else { 
+               m_cLinearVelocity.SetX(0.0f)
+            }
+         }
+
+         void SetActuatorParametersLinearVelocityY(Real f_target_velocity, bool b_isEnabled) {
+            m_bIsEnabled = b_isEnabled;
+            if (m_bIsEnabled == true) { 
+               m_cLinearVelocity.SetY(f_target_velocity);
+            } else { 
+               m_cLinearVelocity.SetY(0.0f)
+            }
+         }
+
+         void SetActuatorParametersLinearVelocityZ(Real f_target_velocity, bool b_isEnabled) {
+            m_bIsEnabled = b_isEnabled;
+            if (m_bIsEnabled == true) { 
+               m_cLinearVelocity.SetZ(f_target_velocity);
+            } else { 
+               m_cLinearVelocity.SetZ(0.0f)
+            }
+         }
+
+         void SetActuatorParametersAngularVelocityX(Real f_target_velocity, bool b_isEnabled) {
+            m_bIsEnabled = b_isEnabled;
+            if (m_bIsEnabled == true) { 
+               m_cAngularVelocity.SetX(f_target_velocity);
+            } else { 
+               m_cAngularVelocity.SetX(0.0f)
+            }
+         }
+
+         void SetActuatorParametersAngularVelocityY(Real f_target_velocity, bool b_isEnabled) {
+            m_bIsEnabled = b_isEnabled;
+            if (m_bIsEnabled == true) { 
+               m_cAngularVelocity.SetY(f_target_velocity);
+            } else { 
+               m_cAngularVelocity.SetY(0.0f)
+            }
+         }
+
+         void SetActuatorParametersAngularVelocityZ(Real f_target_velocity, bool b_isEnabled) {
+            m_bIsEnabled = b_isEnabled;
+            if (m_bIsEnabled == true) { 
+               m_cAngularVelocity.SetZ(f_target_velocity);
+            } else { 
+               m_cAngularVelocity.SetZ(0.0f)
+            }
+         }
 
          std::string m_strId;
          EType m_eType;
-         CLinkEquippedEntity::SLink* m_psParentLink;
-         CLinkEquippedEntity::SLink* m_psChildLink;
+         CLinkEquippedEntity::CLink* m_psParentLink;
+         CLinkEquippedEntity::CLink* m_psChildLink;
          CVector3 m_cLinearVelocity;
          CVector3 m_cAngularVelocity;
          CVector3 m_cJointAxis;
@@ -89,23 +168,6 @@ namespace argos {
          return "joints";
       }
 
-      inline void SetActuatorParametersLinearVelocityX(std::string str_joint_id,
-                                                      Real f_target_velocity);
-
-      inline void SetActuatorParametersLinearVelocityY(std::string str_joint_id,
-                                                      Real f_target_velocity);
-
-      inline void SetActuatorParametersLinearVelocityZ(std::string str_joint_id,
-                                                      Real f_target_velocity);
-
-      inline void SetActuatorParametersAngularVelocityX(std::string str_joint_id,
-                                                      Real f_target_velocity);
-
-      inline void SetActuatorParametersAngularVelocityY(std::string str_joint_id,
-                                                      Real f_target_velocity);
-
-      inline void SetActuatorParametersAngularVelocityZ(std::string str_joint_id,
-                                                      Real f_target_velocity);
       virtual void UpdateComponents();
 
    protected:

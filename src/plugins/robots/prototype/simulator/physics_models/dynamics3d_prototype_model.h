@@ -71,13 +71,13 @@ namespace argos {
       };
 
    private:
-      SLink& AddLink(const CLinkEntity& c_link);
+      CLink& AddLink(const CLinkEntity& c_link);
 
       CPrototypeEntity&       m_cPrototypeEntity;
       CLinkEquippedEntity&    m_cLinkEquippedEntity;
       CJointEquippedEntity&   m_cJointEquippedEntity;
 
-      std::vector<SLink>  m_vecLinks;
+      std::vector<CLink>  m_vecLinks;
    };
 }
 
